@@ -1,13 +1,13 @@
 <div align="center">
-  <h1>OpenAI Voice Chat</h1>
-  <p>Real-time voice conversations with AI</p>
+  <img src="https://storage.googleapis.com/hume-public-logos/hume/hume-banner.png">
+  <h1>EVI Next.js App Router Example</h1>
 </div>
 
 ![preview.png](preview.png)
 
 ## Overview
 
-This project features a voice chat interface using OpenAI's API for speech-to-text (Whisper), text generation (GPT-4), and text-to-speech (TTS). Built with Next.js App Router for real-time voice conversations.
+This project features a sample implementation of Hume's [Empathic Voice Interface](https://hume.docs.buildwithfern.com/docs/empathic-voice-interface-evi/overview) using Hume's React SDK. Here, we have a simple EVI that uses the Next.js App Router.
 
 ## Project deployment
 

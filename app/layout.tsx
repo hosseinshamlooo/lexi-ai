@@ -8,8 +8,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "Hume AI - EVI - Next.js Starter",
-  description: "A Next.js starter using Hume AI's Empathic Voice Interface",
+  title: "Lexi - Your Polyglot Language Partner",
+  description: "An AI-powered language learning platform",
 };
 
 export default function RootLayout({

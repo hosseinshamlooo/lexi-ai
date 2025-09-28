@@ -50,7 +50,7 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
   children,
   onMessage,
   onError,
-}: OpenAIVoiceProviderProps) => {
+}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<{
     value: "idle" | "connecting" | "connected" | "disconnected";
@@ -65,24 +65,43 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  // --- Mic FFT visualization ---
   const updateMicFft = useCallback(() => {
     if (analyserRef.current && !isMuted) {
       const bufferLength = analyserRef.current.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
       analyserRef.current.getByteFrequencyData(dataArray);
-
-      // Convert to normalized values (0-1)
-      const normalizedData = Array.from(dataArray).map((value) => value / 255);
-      setMicFft(normalizedData);
+      setMicFft(Array.from(dataArray).map((v) => v / 255));
     } else {
       setMicFft([]);
     }
-
     animationFrameRef.current = requestAnimationFrame(updateMicFft);
   }, [isMuted]);
 
+  // --- TTS using browser voices (French accent) ---
+  const playTTS = useCallback((text: string) => {
+    const speak = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const frenchVoice =
+        voices.find((v) => v.lang.startsWith("fr")) || voices[0];
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.voice = frenchVoice;
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.addEventListener("voiceschanged", speak, {
+        once: true,
+      });
+    } else {
+      speak();
+    }
+  }, []);
+
   const connect = useCallback(
-    async ({ apiKey, voice = "alloy" }: { apiKey: string; voice?: string }) => {
+    async ({ apiKey, voice }: { apiKey: string; voice?: string }) => {
       try {
         setStatus({ value: "connecting" });
 
@@ -98,113 +117,80 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         });
         streamRef.current = stream;
 
-        // Set up audio analysis for FFT
+        // Setup audio analysis
         audioContextRef.current = new AudioContext();
         const source = audioContextRef.current.createMediaStreamSource(stream);
         analyserRef.current = audioContextRef.current.createAnalyser();
         analyserRef.current.fftSize = 256;
         source.connect(analyserRef.current);
-
-        // Start FFT updates
         updateMicFft();
 
-        // Set up media recorder with better format support
-        const options = { mimeType: "audio/webm;codecs=opus" };
-        if (MediaRecorder.isTypeSupported("audio/mp4")) {
-          options.mimeType = "audio/mp4";
-        } else if (MediaRecorder.isTypeSupported("audio/wav")) {
-          options.mimeType = "audio/wav";
-        }
-        mediaRecorderRef.current = new MediaRecorder(stream, options);
+        // --- First greeting ---
+        const greetingText =
+          "Bonjour! Je suis votre assistant. Cliquez sur le micro pour parler.";
+        setMessages((prev) => [
+          ...prev,
+          {
+            type: "assistant_message",
+            message: { role: "assistant", content: greetingText },
+            receivedAt: new Date(),
+          },
+        ]);
+        onMessage?.();
+        playTTS(greetingText);
 
+        // Setup MediaRecorder
+        mediaRecorderRef.current = new MediaRecorder(stream, {
+          mimeType: "audio/webm;codecs=opus",
+        });
         let audioChunks: Blob[] = [];
 
         mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
-          if (event.data.size > 0) {
-            audioChunks.push(event.data);
-          }
+          if (event.data.size > 0) audioChunks.push(event.data);
         };
 
         mediaRecorderRef.current.onstop = async () => {
-          if (audioChunks.length === 0) return;
-
-          // Determine the correct MIME type and file extension
-          const mimeType = mediaRecorderRef.current?.mimeType || "audio/webm";
-          const fileExtension = mimeType.includes("mp4")
-            ? "mp4"
-            : mimeType.includes("wav")
-            ? "wav"
-            : "webm";
-
-          const audioBlob = new Blob(audioChunks, { type: mimeType });
+          if (!audioChunks.length) return;
+          const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
           audioChunks = [];
 
-          // Check if audio is long enough (at least 0.5 seconds)
-          if (audioBlob.size < 1000) {
-            console.log("Audio too short, skipping transcription");
-            return;
-          }
+          if (audioBlob.size < 1000) return; // skip too short recordings
 
           try {
-            console.log(
-              `Sending audio for transcription: ${audioBlob.size} bytes, type: ${mimeType}`
-            );
-
-            // Convert audio to text using OpenAI Whisper
             const formData = new FormData();
-            formData.append("file", audioBlob, `audio.${fileExtension}`);
+            formData.append("file", audioBlob, "audio.webm");
             formData.append("model", "whisper-1");
-            formData.append("language", "en"); // Optional: specify language
+            formData.append("language", "fr");
 
-            const transcriptionResponse = await fetch(
+            const tr = await fetch(
               "https://api.openai.com/v1/audio/transcriptions",
               {
                 method: "POST",
-                headers: {
-                  Authorization: `Bearer ${apiKey}`,
-                },
+                headers: { Authorization: `Bearer ${apiKey}` },
                 body: formData,
               }
             );
 
-            if (!transcriptionResponse.ok) {
-              const errorText = await transcriptionResponse.text();
-              console.error(
-                "Transcription failed:",
-                transcriptionResponse.status,
-                errorText
-              );
-              throw new Error(
-                `Failed to transcribe audio: ${transcriptionResponse.status} ${errorText}`
-              );
-            }
+            const data = await tr.json();
+            if (!data.text) return;
 
-            const transcription = await transcriptionResponse.json();
-            const userMessage = transcription.text;
-
-            // Add user message
             const userMsg: Message = {
               type: "user_message",
-              message: {
-                role: "user",
-                content: userMessage,
-              },
+              message: { role: "user", content: data.text },
               receivedAt: new Date(),
             };
-
-            setMessages((prev: Message[]) => [...prev, userMsg]);
+            setMessages((prev) => [...prev, userMsg]);
             onMessage?.();
 
-            // Get AI response
             const completion = await openaiRef.current!.chat.completions.create(
               {
-                model: "gpt-4",
+                model: "gpt-4o-mini",
                 messages: [
-                  ...messages.map((msg: Message) => ({
+                  ...messages.map((msg) => ({
                     role: msg.message.role,
                     content: msg.message.content,
                   })),
-                  { role: "user", content: userMessage },
+                  { role: "user", content: data.text },
                 ],
                 max_tokens: 150,
               }
@@ -212,119 +198,66 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
 
             const assistantResponse =
               completion.choices[0]?.message?.content ||
-              "Sorry, I could not generate a response.";
+              "Désolé, je n'ai pas pu générer de réponse.";
 
-            // Add assistant message
             const assistantMsg: Message = {
               type: "assistant_message",
-              message: {
-                role: "assistant",
-                content: assistantResponse,
-              },
+              message: { role: "assistant", content: assistantResponse },
               receivedAt: new Date(),
             };
-
-            setMessages((prev: Message[]) => [...prev, assistantMsg]);
+            setMessages((prev) => [...prev, assistantMsg]);
             onMessage?.();
 
-            // Convert text to speech using OpenAI TTS
-            const ttsResponse = await fetch(
-              "https://api.openai.com/v1/audio/speech",
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${apiKey}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  model: "tts-1",
-                  input: assistantResponse,
-                  voice: voice,
-                }),
-              }
-            );
-
-            if (ttsResponse.ok) {
-              const audioBuffer = await ttsResponse.arrayBuffer();
-              const audioContext = new AudioContext();
-              const audioBufferSource = audioContext.createBufferSource();
-              const decodedAudio = await audioContext.decodeAudioData(
-                audioBuffer
-              );
-              audioBufferSource.buffer = decodedAudio;
-              audioBufferSource.connect(audioContext.destination);
-              audioBufferSource.start();
-            }
-          } catch (error) {
-            console.error("Error processing audio:", error);
-            onError?.(error as Error);
+            // Speak the assistant response in French
+            playTTS(assistantResponse);
+          } catch (err) {
+            console.error("Error processing audio:", err);
+            onError?.(err as Error);
           }
         };
 
         setStatus({ value: "connected" });
-      } catch (error) {
-        console.error("Error connecting:", error);
+      } catch (err) {
+        console.error("Error connecting:", err);
         setStatus({ value: "disconnected" });
-        onError?.(error as Error);
+        onError?.(err as Error);
       }
     },
-    [messages, onMessage, onError, updateMicFft]
+    [messages, onMessage, onError, playTTS, updateMicFft]
   );
 
   const disconnect = useCallback(() => {
-    if (
-      mediaRecorderRef.current &&
-      mediaRecorderRef.current.state === "recording"
-    ) {
+    if (mediaRecorderRef.current?.state === "recording")
       mediaRecorderRef.current.stop();
-    }
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
 
-    if (streamRef.current) {
-      streamRef.current
-        .getTracks()
-        .forEach((track: MediaStreamTrack) => track.stop());
-      streamRef.current = null;
-    }
+    audioContextRef.current?.close();
+    audioContextRef.current = null;
 
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-
-    if (animationFrameRef.current) {
+    if (animationFrameRef.current)
       cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
+    animationFrameRef.current = null;
 
     setStatus({ value: "disconnected" });
     setMicFft([]);
   }, []);
 
-  const mute = useCallback(() => {
-    setIsMuted(true);
-  }, []);
+  const mute = useCallback(() => setIsMuted(true), []);
+  const unmute = useCallback(() => setIsMuted(false), []);
 
-  const unmute = useCallback(() => {
-    setIsMuted(false);
-  }, []);
-
-  // Start/stop recording based on mute state
+  // Auto-start/stop recording based on mute
   useEffect(() => {
     if (status.value === "connected" && mediaRecorderRef.current) {
-      if (!isMuted && mediaRecorderRef.current.state === "inactive") {
-        mediaRecorderRef.current.start(3000); // Record in 3-second chunks for better quality
-      } else if (isMuted && mediaRecorderRef.current.state === "recording") {
+      if (!isMuted && mediaRecorderRef.current.state === "inactive")
+        mediaRecorderRef.current.start(3000);
+      else if (isMuted && mediaRecorderRef.current.state === "recording")
         mediaRecorderRef.current.stop();
-      }
     }
   }, [isMuted, status.value]);
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      disconnect();
-    };
-  }, [disconnect]);
+  useEffect(() => () => disconnect(), [disconnect]);
 
   const value: VoiceContextType = {
     messages,
