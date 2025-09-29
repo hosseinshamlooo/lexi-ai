@@ -1,90 +1,96 @@
 "use client";
 
-import { useState } from "react";
-import { useVoice } from "./OpenAIVoiceProvider";
+import { useMemo, useState } from "react";
+import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 import StartCall from "./StartCall";
-import AnimatedSituationPicker from "./AnimatedSituationPicker";
 
-export default function Hero({
-  apiKey,
-  voice,
-}: {
+type Situation = {
+  role: string;
+  description: string;
+  image?: string;
+};
+
+interface HeroProps {
   apiKey: string;
   voice?: string;
-}) {
-  const [callClicked, setCallClicked] = useState(false);
-  const { status } = useVoice();
+  situations: Situation[];
+  title: string;
+}
 
-  const scrollToChat = () => {
-    const chat = document.getElementById("chat-container");
-    if (chat) chat.scrollIntoView({ behavior: "smooth" });
-  };
+export default function Hero({ apiKey, voice, situations, title }: HeroProps) {
+  const [active, setActive] = useState(0);
 
-  if (callClicked && status.value === "connected") return null;
+  const randomStyles = useMemo(
+    () =>
+      situations.map(() => ({
+        rotate: Math.floor(Math.random() * 21 - 10),
+        x: Math.floor(Math.random() * 40 - 20),
+        y: Math.floor(Math.random() * 40 - 20),
+      })),
+    [situations]
+  );
 
-  const situations = [
-    {
-      role: "Ordering Food",
-      description:
-        "Very common daily interaction. Includes asking about ingredients, dietary restrictions, and making requests.",
-      image: "/images/lexi-1.jpg",
-    },
-    {
-      role: "Hotel Check-in",
-      description:
-        "Useful for travelers. Asking about room amenities, check-out, and basic requests.",
-      image: "/images/lexi-2.jpg",
-    },
-    {
-      role: "Asking for Directions",
-      description: "Essential for navigating cities or public transport.",
-      image: "/images/lexi-3.jpg",
-    },
-    {
-      role: "Shopping",
-      description:
-        "Practice conversations when buying clothes, groceries, or other items.",
-      image: "/images/lexi-4.jpg",
-    },
-    {
-      role: "Introducing Yourself",
-      description:
-        "Build confidence with greetings, small talk, and basic introductions.",
-      image: "/images/lexi-5.jpg",
-    },
-    {
-      role: "At the Doctor",
-      description:
-        "Learn to describe symptoms, understand instructions, and ask questions.",
-      image: "/images/lexi-6.jpg",
-    },
-    {
-      role: "At the Airport",
-      description: "Check-in, security, boarding, and asking about flights.",
-      image: "/images/lexi-7.jpg",
-    },
-    {
-      role: "Making Friends",
-      description:
-        "Casual conversations, finding common interests, and building connections.",
-      image: "/images/lexi-8.jpg",
-    },
-  ];
+  const handleNext = () => setActive((prev) => (prev + 1) % situations.length);
+  const handlePrev = () =>
+    setActive((prev) => (prev - 1 + situations.length) % situations.length);
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col items-center justify-center p-6 bg-[var(--color-background)] text-[var(--color-foreground)] transition-colors duration-500">
-      <AnimatedSituationPicker
-        situations={situations}
-        onCallClick={() => (
-          <StartCall
-            apiKey={apiKey}
-            voice={voice}
-            inline
-            onClick={() => setCallClicked(true)}
-            onConnect={scrollToChat}
-          />
-        )}
-      />
+    <section className="relative w-full min-h-screen flex items-center justify-center bg-[var(--color-background)] text-[var(--color-foreground)] overflow-hidden px-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start w-full max-w-6xl">
+        {/* Left: Messy Image Stack */}
+        <div className="relative flex items-center justify-center">
+          <div className="relative w-[420px] h-[420px]">
+            {situations.map((situation, index) => {
+              const { rotate, x, y } = randomStyles[index];
+              const isActive = index === active;
+              return (
+                <img
+                  key={situation.image}
+                  src={situation.image || `/images/lexi-${index + 1}.jpg`}
+                  alt={situation.role}
+                  className={`absolute top-0 left-0 w-[420px] h-[420px] object-cover aspect-square rounded-2xl shadow-xl transition-transform duration-300 ${
+                    isActive ? "z-50 scale-105" : "z-10 opacity-70"
+                  }`}
+                  style={{
+                    transform: `translate(${x}px, ${y}px) rotate(${rotate}deg)`,
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right: Text, StartCall, Arrows */}
+        <div className="flex flex-col items-start text-left max-w-md space-y-4 mt-16">
+          <h1 className="text-5xl font-extrabold whitespace-nowrap">{title}</h1>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-2">
+              {situations[active].role}
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              {situations[active].description}
+            </p>
+          </div>
+
+          <StartCall apiKey={apiKey} voice={voice} inline />
+
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={handlePrev}
+              className="group/button flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-neutral-800"
+            >
+              <IconArrowLeft className="h-6 w-6 text-black dark:text-neutral-400 group-hover/button:scale-110 transition-transform" />
+            </button>
+            <button
+              onClick={handleNext}
+              className="group/button flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-neutral-800"
+            >
+              <IconArrowRight className="h-6 w-6 text-black dark:text-neutral-400 group-hover/button:scale-110 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

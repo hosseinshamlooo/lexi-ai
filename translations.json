@@ -1,0 +1,187 @@
+{
+  "en": {
+    "title": "Hey I’m Lexi 👋",
+    "situations": [
+      {
+        "role": "Ordering Food",
+        "description": "A daily interaction where you ask about ingredients, dietary needs, and make requests. Polite phrases help avoid confusion and get your order right."
+      },
+      {
+        "role": "Hotel Check-in",
+        "description": "Useful when arriving at hotels. Ask about room amenities, check-in, and check-out. Clear communication ensures smooth check-ins and requests."
+      },
+      {
+        "role": "Asking for Directions",
+        "description": "Essential for navigating cities or public transport. Ask locals about landmarks, bus stops, or schedules. Helps you travel confidently without getting lost."
+      },
+      {
+        "role": "Taking Public Transport",
+        "description": "Includes buying tickets, confirming stops, and checking schedules. Ask staff for guidance to travel efficiently in unfamiliar places."
+      },
+      {
+        "role": "Shopping",
+        "description": "Ask about prices, sizes, or try on clothes. You can bargain in markets or confirm details. Confident communication helps secure what you need."
+      },
+      {
+        "role": "Emergency Situations",
+        "description": "Critical interactions for safety. Call for help, explain medical issues, or report incidents. Knowing key phrases can save time and reduce stress."
+      },
+      {
+        "role": "Social Interactions / Small Talk",
+        "description": "Covers greetings, introductions, and casual conversation. Ask questions, respond politely, and connect naturally with locals for practice."
+      },
+      {
+        "role": "Job Interview / Basic Work",
+        "description": "Professional interactions like interviews or workplace introductions. Answer questions, introduce yourself, and use polite phrases effectively."
+      }
+    ]
+  },
+  "fr": {
+    "title": "Salut, je suis Lexi 👋",
+    "situations": [
+      {
+        "role": "Commander de la nourriture",
+        "description": "Interaction quotidienne où vous demandez ingrédients, restrictions ou requêtes. Des phrases polies évitent malentendus et commandes incorrectes."
+      },
+      {
+        "role": "Enregistrement à l'hôtel",
+        "description": "Utile à l'arrivée. Demandez équipements, check-in et check-out. Une communication claire facilite l'accueil et les demandes."
+      },
+      {
+        "role": "Demander son chemin",
+        "description": "Essentiel pour se déplacer. Demandez points de repère, arrêts ou horaires. Cela permet de se déplacer avec confiance et de ne pas se perdre."
+      },
+      {
+        "role": "Prendre les transports publics",
+        "description": "Inclut acheter billets, vérifier arrêts et horaires. Demandez au personnel pour voyager efficacement dans des endroits inconnus."
+      },
+      {
+        "role": "Shopping",
+        "description": "Demandez prix, tailles ou essayez vêtements. Négociez ou vérifiez détails. Une communication confiante aide à obtenir ce que vous voulez."
+      },
+      {
+        "role": "Situations d'urgence",
+        "description": "Interactions critiques pour la sécurité. Appelez à l'aide, expliquez problèmes médicaux ou signalez incidents. Des phrases clés gagnent du temps."
+      },
+      {
+        "role": "Interactions sociales / Small Talk",
+        "description": "Inclut salutations, présentations et conversation légère. Posez questions, répondez poliment et connectez-vous naturellement avec les locaux."
+      },
+      {
+        "role": "Entretien / Travail de base",
+        "description": "Interactions professionnelles comme interviews ou introductions. Répondez aux questions, présentez-vous et utilisez phrases polies efficacement."
+      }
+    ]
+  },
+  "es": {
+    "title": "Hola, soy Lexi 👋",
+    "situations": [
+      {
+        "role": "Pedir comida",
+        "description": "Interacción diaria preguntando por ingredientes, restricciones o solicitudes. Frases educadas evitan malentendidos y aseguran un pedido correcto."
+      },
+      {
+        "role": "Registro en hotel",
+        "description": "Útil al llegar. Pregunta sobre comodidades, check-in y check-out. Comunicación clara facilita la entrada y resolución de solicitudes."
+      },
+      {
+        "role": "Preguntar direcciones",
+        "description": "Esencial para moverse. Pregunta por puntos de referencia, paradas o horarios. Ayuda a desplazarse con confianza y no perderse."
+      },
+      {
+        "role": "Tomar transporte público",
+        "description": "Incluye comprar boletos, confirmar paradas y horarios. Pregunta al personal para viajar eficientemente en lugares desconocidos."
+      },
+      {
+        "role": "Compras",
+        "description": "Pregunta precios, tallas o prueba ropa. Regatea o verifica detalles. Una comunicación segura ayuda a conseguir lo que necesitas."
+      },
+      {
+        "role": "Situaciones de emergencia",
+        "description": "Crítico para la seguridad. Llama por ayuda, explica problemas médicos o reporta incidentes. Frases clave ahorran tiempo y reducen estrés."
+      },
+      {
+        "role": "Interacciones sociales / Pequeña charla",
+        "description": "Incluye saludos, presentaciones y conversación casual. Haz preguntas, responde con cortesía y conecta naturalmente con los locales."
+      },
+      {
+        "role": "Entrevista de trabajo / Trabajo básico",
+        "description": "Interacciones profesionales como entrevistas o presentaciones. Responde preguntas, preséntate y usa frases educadas con eficacia."
+      }
+    ]
+  },
+  "de": {
+    "title": "Hallo, ich bin Lexi 👋",
+    "situations": [
+      {
+        "role": "Essen bestellen",
+        "description": "Sehr häufige tägliche Interaktion. Fragen zu Zutaten, Diät oder speziellen Wünschen. Höfliche Sätze helfen, Missverständnisse zu vermeiden."
+      },
+      {
+        "role": "Hotel-Check-in",
+        "description": "Nützlich bei Ankunft. Fragen zu Zimmer, Check-in und Check-out. Klare Kommunikation erleichtert Anfragen und Probleme."
+      },
+      {
+        "role": "Nach dem Weg fragen",
+        "description": "Wichtig zur Orientierung. Fragen Sie nach Orientierungspunkten, Haltestellen oder Fahrplänen. Hilft, sich sicher zu bewegen und nicht zu verirren."
+      },
+      {
+        "role": "Öffentliche Verkehrsmittel nutzen",
+        "description": "Ticketkauf, Haltestellen prüfen, Fahrpläne abfragen. Fragen Sie Personal, um effizient an unbekannten Orten zu reisen."
+      },
+      {
+        "role": "Einkaufen",
+        "description": "Fragen zu Preisen, Größen, Kleidung anprobieren. Handeln oder Details prüfen. Selbstbewusste Kommunikation hilft, gewünschte Dinge zu bekommen."
+      },
+      {
+        "role": "Notfälle",
+        "description": "Sicherheitskritische Situationen. Hilfe rufen, medizinische Probleme beschreiben oder Vorfälle melden. Wichtige Sätze sparen Zeit und Stress."
+      },
+      {
+        "role": "Soziale Interaktionen / Small Talk",
+        "description": "Begrüßungen, Vorstellungen und leichte Gespräche. Fragen stellen, höflich antworten und sich mit Einheimischen verbinden."
+      },
+      {
+        "role": "Vorstellungsgespräch / Grundlegende Arbeit",
+        "description": "Berufliche Interaktionen wie Interviews oder Arbeitsvorstellungen. Antworten geben, sich vorstellen und höfliche Sätze effektiv nutzen."
+      }
+    ]
+  },
+  "zh": {
+    "title": "你好，我是Lexi 👋",
+    "situations": [
+      {
+        "role": "点餐",
+        "description": "非常常见的日常交流。询问配料、饮食限制或特殊要求。礼貌表达可避免误会并确保点餐准确。"
+      },
+      {
+        "role": "酒店入住",
+        "description": "对旅行者非常有用。询问房间设施、入住和退房。掌握基本表达能轻松处理请求或问题。"
+      },
+      {
+        "role": "问路",
+        "description": "城市或公共交通导航必备。询问地标、公交站或时刻表。帮助你自信出行，不迷路。"
+      },
+      {
+        "role": "乘坐公共交通",
+        "description": "包括买票、确认站点和查看时刻表。向工作人员询问路线有助于高效出行。"
+      },
+      {
+        "role": "购物",
+        "description": "询问价格、尺寸和试穿衣物。可在市场讨价还价或确认产品信息。掌握这些表达增加购物信心。"
+      },
+      {
+        "role": "紧急情况",
+        "description": "涉及安全和紧急需求。呼救、描述医疗问题或报告事件。掌握关键表达可节省时间并减轻压力。"
+      },
+      {
+        "role": "社交/闲聊",
+        "description": "包括问候、介绍和日常对话。提问、礼貌回应并与当地人自然交流。"
+      },
+      {
+        "role": "面试/基础工作",
+        "description": "职业场景，如面试或工作介绍。回答问题、自我介绍并有效使用礼貌用语。"
+      }
+    ]
+  }
+}
