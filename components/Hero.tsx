@@ -52,7 +52,9 @@ export default function Hero({ apiKey, voice, situations, title }: HeroProps) {
                     isActive ? "z-50 scale-105" : "z-10 opacity-70"
                   }`}
                   style={{
-                    transform: `translate(${x}px, ${y}px) rotate(${rotate}deg)`,
+                    transform: `translate(${x}px, ${y}px) rotate(${
+                      isActive ? 0 : rotate
+                    }deg)`,
                   }}
                 />
               );
