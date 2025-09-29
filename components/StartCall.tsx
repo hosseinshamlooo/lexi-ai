@@ -55,10 +55,10 @@ export default function StartCall({
           exit={{ scale: 0.5 }}
         >
           <Button
-            className="z-50 flex items-center gap-1.5 rounded-full"
+            className="z-50 flex items-center gap-1.5 rounded-full px-7 py-5 text-base"
             onClick={handleClick}
           >
-            <Phone className="size-4 opacity-50 fill-current" strokeWidth={0} />
+            <Phone className="size-5 opacity-50 fill-current" strokeWidth={0} />
             <span>Start Call</span>
           </Button>
         </motion.div>
