@@ -118,7 +118,7 @@ export default function Hero({
           </AnimatePresence>
 
           {/* Start Call Button */}
-          <StartCall apiKey={apiKey} voice={voice} inline />
+          <StartCall apiKey={apiKey} voice={voice} />
 
           {/* Arrows */}
           <div className="flex gap-4 mt-4">

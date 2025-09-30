@@ -11,13 +11,18 @@ type Situation = {
 };
 
 interface HeroProps {
-  apiKey: string;
   voice?: string;
   situations: Situation[];
   title: string;
+  onStartCall?: () => void;
 }
 
-export default function Hero({ apiKey, voice, situations, title }: HeroProps) {
+export default function Hero({
+  voice,
+  situations,
+  title,
+  onStartCall,
+}: HeroProps) {
   const [active, setActive] = useState(0);
 
   const randomStyles = useMemo(
@@ -35,7 +40,10 @@ export default function Hero({ apiKey, voice, situations, title }: HeroProps) {
     setActive((prev) => (prev - 1 + situations.length) % situations.length);
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center bg-[var(--color-background)] text-[var(--color-foreground)] overflow-hidden px-6">
+    <section
+      id="hero"
+      className="relative w-full min-h-screen flex items-center justify-center bg-[var(--color-background)] text-[var(--color-foreground)] overflow-hidden px-6"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start w-full max-w-6xl">
         {/* Left: Messy Image Stack */}
         <div className="relative flex items-center justify-center">
@@ -75,7 +83,11 @@ export default function Hero({ apiKey, voice, situations, title }: HeroProps) {
             </p>
           </div>
 
-          <StartCall apiKey={apiKey} voice={voice} inline />
+          <StartCall
+            voice={voice}
+            inline
+            onClick={onStartCall} // pass Hero's onStartCall to StartCall's onClick
+          />
 
           <div className="flex gap-4 mt-4">
             <button

@@ -1,25 +1,34 @@
 <div align="center">
-  <img src="https://storage.googleapis.com/hume-public-logos/hume/hume-banner.png">
-  <h1>EVI Next.js App Router Example</h1>
+  <img src="https://yourdomain.com/lexi-banner.png" alt="Lexi Banner">
+  <h1>Lexi - AI Language Partner</h1>
 </div>
 
 ![preview.png](preview.png)
 
 ## Overview
 
-This project features a sample implementation of Hume's [Empathic Voice Interface](https://hume.docs.buildwithfern.com/docs/empathic-voice-interface-evi/overview) using Hume's React SDK. Here, we have a simple EVI that uses the Next.js App Router.
+Lexi is an AI-powered language learning companion that helps users practice and improve their English (and other languages) through conversation. With real-time speech recognition, interactive dialogues, and adaptive feedback, Lexi acts as a personal language partner available anytime, anywhere.
 
-## Project deployment
+## Project Deployment
 
-Click the button below to deploy this example project with Vercel:
+Click the button below to deploy this project with Vercel:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhumeai%2Fhume-evi-next-js-starter&env=HUME_API_KEY,HUME_SECRET_KEY)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyourusername%2Flexi-ai&env=NEXT_PUBLIC_OPENAI_API_KEY)
 
-Below are the steps to completing deployment:
+Below are the steps to complete deployment:
 
-1. Create a Git Repository for your project.
-2. Provide the required environment variables. To get your API key and Client Secret key, log into the portal and visit the [API keys page](https://beta.hume.ai/settings/keys).
+1. Create a Git repository for your project.
+2. Provide the required environment variable: `NEXT_PUBLIC_OPENAI_API_KEY`. You can get your API key from OpenAI's [API dashboard](https://platform.openai.com/account/api-keys).
+3. Once deployed, open your Vercel URL to start using Lexi as your AI language partner.
+
+## Features
+
+- 🗣️ Real-time voice conversations for language practice
+- 💬 Text-based chat with context-aware AI responses
+- 🎯 Adaptive learning: Lexi adjusts difficulty based on your level
+- 📊 Progress tracking and performance insights
+- 🌐 Multi-language support (English, French, etc.)
 
 ## Support
 
-If you have questions, require assistance, or wish to engage in discussions pertaining to this starter template, [please reach out to us on Discord](https://link.hume.ai/discord).
+If you have questions, need assistance, or want to share feedback, [join our Discord community](https://link.lexi.ai/discord) for discussions and support.

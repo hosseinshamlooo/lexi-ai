@@ -3,27 +3,21 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "./ui/button";
 import { Phone } from "lucide-react";
-import { toast } from "sonner";
 import { useVoice } from "./OpenAIVoiceProvider";
 
 export default function StartCall({
-  apiKey,
   voice,
   inline = false,
-  onConnect,
   onClick,
 }: {
-  apiKey: string;
   voice?: string;
   inline?: boolean;
-  onConnect?: () => void;
-  onClick?: () => void;
+  onClick?: () => void; // Called when call successfully starts
 }) {
   const voiceContext = useVoice();
   if (!voiceContext) return null;
 
   const { status, connect } = voiceContext;
-
   if (status.value === "connected") return null;
 
   const containerClasses = inline
@@ -31,13 +25,29 @@ export default function StartCall({
     : "fixed inset-0 p-4 flex items-center justify-center bg-background";
 
   const handleClick = async () => {
-    onClick?.(); // set callClicked
     try {
-      await connect({ apiKey, voice: voice || "onyx" });
-      onConnect?.(); // scroll after connection succeeds
-    } catch (err) {
+      // Call server to get any required data (e.g., greeting)
+      const res = await fetch("/api/voice/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ voice }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData?.error || "Failed to start call");
+      }
+
+      const data = await res.json();
+
+      // Connect voice context
+      await connect({ voice, ...data });
+
+      // Notify parent that call has started
+      onClick?.();
+    } catch (err: any) {
       console.error(err);
-      toast.error("Unable to start call");
+      alert(`Unable to start call: ${err.message}`);
     }
   };
 
@@ -57,9 +67,12 @@ export default function StartCall({
           <Button
             className="z-50 flex items-center gap-1.5 rounded-full px-7 py-5 text-base"
             onClick={handleClick}
+            disabled={status.value === "connecting"}
           >
             <Phone className="size-5 opacity-50 fill-current" strokeWidth={0} />
-            <span>Start Call</span>
+            <span>
+              {status.value === "connecting" ? "Connecting..." : "Start Call"}
+            </span>
           </Button>
         </motion.div>
       </motion.div>
