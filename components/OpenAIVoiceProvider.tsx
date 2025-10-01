@@ -31,7 +31,7 @@ interface VoiceContextType {
   reset: () => void;
   sendMessage: (content: string, prompt?: string) => Promise<void>;
   sendAssistantMessage: (content: string) => void;
-  sendPromptToLLM: (prompt: string) => Promise<void>; // <-- Add this
+  sendPromptToLLM: (prompt: string) => Promise<void>;
 }
 
 const VoiceContext = createContext<VoiceContextType | null>(null);
@@ -67,8 +67,9 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const activePromptRef = useRef<string>(""); // store current situation prompt
 
-  // === MIC FFT ===
+  // === Mic FFT ===
   const updateMicFft = useCallback(() => {
     if (analyserRef.current && !isMuted) {
       const bufferLength = analyserRef.current.frequencyBinCount;
@@ -106,7 +107,7 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     }
   }, []);
 
-  // === SEND ASSISTANT MESSAGE ===
+  // === Send assistant message ===
   const sendAssistantMessage = useCallback(
     (text: string) => {
       const msg: ChatMessage = {
@@ -120,7 +121,7 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     [playTTS]
   );
 
-  // === SEND USER MESSAGE (normal user input) ===
+  // === Send user message (typed or UI triggered) ===
   const sendMessage = useCallback(
     async (content: string, prompt?: string) => {
       const userMsg: ChatMessage = {
@@ -134,7 +135,11 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         const res = await fetch("/api/voice/sendMessage", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: content, prompt, language }),
+          body: JSON.stringify({
+            message: content,
+            prompt: prompt || activePromptRef.current,
+            language,
+          }),
         });
         const data = await res.json();
         if (data.response) sendAssistantMessage(data.response);
@@ -146,26 +151,25 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     [language, onError, sendAssistantMessage]
   );
 
-  // === SEND PROMPT SILENTLY (no user message) ===
+  // === Send prompt silently (no user message) ===
   const sendPromptToLLM = useCallback(
     async (prompt: string) => {
+      activePromptRef.current = prompt; // set active situation
       try {
-        const res = await fetch("/api/voice/sendMessage", {
+        await fetch("/api/voice/sendMessage", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: "", prompt, language }),
         });
-        const data = await res.json();
-        if (data.response) sendAssistantMessage(data.response);
       } catch (err) {
         console.error(err);
         onError?.(err as Error);
       }
     },
-    [language, onError, sendAssistantMessage]
+    [language, onError]
   );
 
-  // === CONNECT ===
+  // === Connect ===
   const connect = useCallback(
     async ({
       voice,
@@ -187,13 +191,13 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         source.connect(analyserRef.current);
         updateMicFft();
 
-        // Send greeting only
+        // Show greeting
         if (greeting) sendAssistantMessage(greeting);
 
-        // Send initial prompt silently
+        // Store + send initial prompt
         if (prompt) await sendPromptToLLM(prompt);
 
-        // MEDIA RECORDER
+        // Recorder
         const supportedMime = [
           "audio/webm;codecs=opus",
           "audio/ogg;codecs=opus",
@@ -220,6 +224,7 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
             formData.append("file", audioBlob, `chunk.${extension}`);
             formData.append("voice", voice || "");
             formData.append("language", language);
+            formData.append("prompt", activePromptRef.current);
 
             const serverRes = await fetch("/api/voice/process", {
               method: "POST",
@@ -230,7 +235,6 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
             const result = await serverRes.json();
 
             if (result.text) {
-              // Add user message for actual microphone input
               const userMsg: ChatMessage = {
                 type: "user_message",
                 message: { role: "user", content: result.text },
@@ -264,7 +268,6 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     ]
   );
 
-  // === DISCONNECT / RESET / MUTE / UNMUTE ===
   const disconnect = useCallback(() => {
     if (mediaRecorderRef.current?.state === "recording")
       mediaRecorderRef.current.stop();

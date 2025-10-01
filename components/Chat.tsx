@@ -6,32 +6,30 @@ import Controls from "./Controls";
 import { useVoice } from "./OpenAIVoiceProvider";
 
 interface ChatProps {
-  greeting?: string; // Assistant greeting
-  prompt?: string; // Optional system prompt to feed LLM
+  greeting?: string;
+  prompt?: string;
 }
 
 export default function Chat({ greeting, prompt }: ChatProps) {
-  const { sendAssistantMessage, sendPromptToLLM } = useVoice(); // Use the silent prompt method
+  const { sendAssistantMessage, sendPromptToLLM } = useVoice();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hasSentGreeting = useRef(false);
 
   useEffect(() => {
     if (greeting && !hasSentGreeting.current) {
-      sendAssistantMessage(greeting); // Only show assistant greeting
-      if (prompt) sendPromptToLLM(prompt); // Feed LLM silently, no user message
+      sendAssistantMessage(greeting); // show greeting
+      if (prompt) sendPromptToLLM(prompt); // feed prompt silently
       hasSentGreeting.current = true;
     }
   }, [greeting, prompt, sendAssistantMessage, sendPromptToLLM]);
 
-  // Auto-scroll
+  // auto scroll
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     const observer = new MutationObserver(() => {
       container.scrollTop = container.scrollHeight;
     });
-
     observer.observe(container, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);

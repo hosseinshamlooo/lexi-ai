@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // === Whisper transcription in selected language ===
+    // Whisper
     const transcription = await openai.audio.transcriptions.create({
       file: audioFile,
       model: "whisper-1",
@@ -23,11 +23,14 @@ export async function POST(req: NextRequest) {
 
     const userText = transcription.text || "";
 
-    // === GPT response using the selected prompt as system message ===
+    // GPT with prompt
     const chatResponse = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: prompt || "You are a helpful assistant speaking the user's language." },
+        {
+          role: "system",
+          content: prompt || "You are a helpful assistant.",
+        },
         { role: "user", content: userText },
       ],
     });
@@ -37,6 +40,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ text: userText, response: responseText });
   } catch (err: any) {
     console.error("❌ Process route error:", err);
-    return NextResponse.json({ error: err.message || "Failed to process audio" }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || "Failed to process audio" },
+      { status: 500 }
+    );
   }
 }
