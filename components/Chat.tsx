@@ -6,24 +6,24 @@ import Controls from "./Controls";
 import { useVoice } from "./OpenAIVoiceProvider";
 
 interface ChatProps {
-  greeting?: string; // The assistant greeting from the Hero section
-  prompt?: string; // Optional system prompt or situation-specific context
+  greeting?: string; // Assistant greeting
+  prompt?: string; // Optional system prompt to feed LLM
 }
 
 export default function Chat({ greeting, prompt }: ChatProps) {
-  const { sendAssistantMessage } = useVoice(); // Only call the assistant message
+  const { sendAssistantMessage, sendPromptToLLM } = useVoice(); // Use the silent prompt method
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const hasSentGreeting = useRef(false); // Track if greeting has been sent
+  const hasSentGreeting = useRef(false);
 
-  // === Send the assistant greeting ONCE when component mounts or greeting changes ===
   useEffect(() => {
     if (greeting && !hasSentGreeting.current) {
-      sendAssistantMessage(greeting, prompt);
-      hasSentGreeting.current = true; // Prevent duplicate greetings
+      sendAssistantMessage(greeting); // Only show assistant greeting
+      if (prompt) sendPromptToLLM(prompt); // Feed LLM silently, no user message
+      hasSentGreeting.current = true;
     }
-  }, [greeting, prompt, sendAssistantMessage]);
+  }, [greeting, prompt, sendAssistantMessage, sendPromptToLLM]);
 
-  // === Auto-scroll on new messages ===
+  // Auto-scroll
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -33,7 +33,6 @@ export default function Chat({ greeting, prompt }: ChatProps) {
     });
 
     observer.observe(container, { childList: true, subtree: true });
-
     return () => observer.disconnect();
   }, []);
 
