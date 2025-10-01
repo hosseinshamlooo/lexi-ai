@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="https://yourdomain.com/lexi-banner.png" alt="Lexi Banner">
   <h1>Lexi - AI Language Partner</h1>
 </div>
 
-![preview.png](preview.png)
+![Lexi Preview 1](images/lexi-preview1.png)
+![Lexi Preview 2](images/lexi-preview2.png)
 
 ## Overview
 
