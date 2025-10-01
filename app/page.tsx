@@ -14,6 +14,12 @@ const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
 export default function ClientPage() {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [callStarted, setCallStarted] = useState(false);
+  const [activeSituation, setActiveSituation] = useState<null | {
+    role: string;
+    description: string;
+    greeting: string;
+    prompt: string;
+  }>(null);
 
   const voice = process.env.NEXT_PUBLIC_OPENAI_VOICE || "onyx";
 
@@ -21,7 +27,13 @@ export default function ClientPage() {
     string,
     {
       title?: string;
-      situations: { role: string; description: string; image?: string }[];
+      situations: {
+        role: string;
+        description: string;
+        greeting: string;
+        prompt: string;
+        image?: string;
+      }[];
     }
   >;
 
@@ -44,17 +56,24 @@ export default function ClientPage() {
             voice={voice}
             situations={currentTranslation.situations}
             title={currentTranslation.title ?? "Hey, I'm Lexi 👋"}
-            onStartCall={() => setCallStarted(true)}
+            onStartCall={(situation) => {
+              setActiveSituation(situation);
+              setCallStarted(true);
+            }}
           />
         )}
 
         {/* Chat + Controls: only show when call is active */}
-        {callStarted && (
+        {callStarted && activeSituation && (
           <>
-            <Chat />
+            <Chat
+              greeting={activeSituation.greeting}
+              prompt={activeSituation.prompt}
+            />
             <Controls
               onEndCall={() => {
-                setCallStarted(false); // reset call state in page
+                setCallStarted(false);
+                setActiveSituation(null);
                 // scroll back to Hero smoothly
                 const hero = document.getElementById("hero");
                 hero?.scrollIntoView({ behavior: "smooth" });

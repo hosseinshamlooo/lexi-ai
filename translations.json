@@ -4,35 +4,51 @@
     "situations": [
       {
         "role": "Ordering Food",
-        "description": "A daily interaction where you ask about ingredients, dietary needs, and make requests. Polite phrases help avoid confusion and get your order right."
+        "description": "A daily interaction where you ask about ingredients, dietary needs, and make requests. Polite phrases help avoid confusion and get your order right.",
+        "greeting": "Hello! Welcome to Lexi's! I'll be your server for the day. Are you ready to order?",
+        "prompt": "You are a friendly restaurant server helping the learner practice ordering food. Ask what they’d like, suggest dishes, and respond politely like in a real dining experience."
       },
       {
         "role": "Hotel Check-in",
-        "description": "Useful when arriving at hotels. Ask about room amenities, check-in, and check-out. Clear communication ensures smooth check-ins and requests."
+        "description": "Useful when arriving at hotels. Ask about room amenities, check-in, and check-out. Clear communication ensures smooth check-ins and requests.",
+        "greeting": "Good evening! Welcome to Lexi Hotel. Do you have a reservation with us?",
+        "prompt": "You are a polite hotel receptionist. Greet the guest, confirm reservations, and assist with check-in or check-out."
       },
       {
         "role": "Asking for Directions",
-        "description": "Essential for navigating cities or public transport. Ask locals about landmarks, bus stops, or schedules. Helps you travel confidently without getting lost."
+        "description": "Essential for navigating cities or public transport. Ask locals about landmarks, bus stops, or schedules. Helps you travel confidently without getting lost.",
+        "greeting": "Hi there! You look a bit lost. Where are you trying to go?",
+        "prompt": "You are a helpful local giving directions. Guide the learner clearly, offer landmarks, and check they understood."
       },
       {
         "role": "Taking Public Transport",
-        "description": "Includes buying tickets, confirming stops, and checking schedules. Ask staff for guidance to travel efficiently in unfamiliar places."
+        "description": "Includes buying tickets, confirming stops, and checking schedules. Ask staff for guidance to travel efficiently in unfamiliar places.",
+        "greeting": "Hello! Do you need help buying a ticket or finding the right stop?",
+        "prompt": "You are a transport staff member assisting a traveler. Help them buy tickets, confirm stops, and explain schedules politely."
       },
       {
         "role": "Shopping",
-        "description": "Ask about prices, sizes, or try on clothes. You can bargain in markets or confirm details. Confident communication helps secure what you need."
+        "description": "Ask about prices, sizes, or try on clothes. You can bargain in markets or confirm details. Confident communication helps secure what you need.",
+        "greeting": "Welcome to Lexi’s Store! Are you looking for something in particular today?",
+        "prompt": "You are a shop assistant. Answer questions about prices, sizes, or styles. Offer help and practice polite sales interactions."
       },
       {
         "role": "Emergency Situations",
-        "description": "Critical interactions for safety. Call for help, explain medical issues, or report incidents. Knowing key phrases can save time and reduce stress."
+        "description": "Critical interactions for safety. Call for help, explain medical issues, or report incidents. Knowing key phrases can save time and reduce stress.",
+        "greeting": "This is Lexi Emergency Services. What’s your emergency?",
+        "prompt": "You are an emergency responder. Ask what happened, gather details quickly, and respond with urgency but calm professionalism."
       },
       {
         "role": "Social Interactions / Small Talk",
-        "description": "Covers greetings, introductions, and casual conversation. Ask questions, respond politely, and connect naturally with locals for practice."
+        "description": "Covers greetings, introductions, and casual conversation. Ask questions, respond politely, and connect naturally with locals for practice.",
+        "greeting": "Hey! Nice to meet you. How’s your day going so far?",
+        "prompt": "You are a friendly local making small talk. Greet warmly, ask light questions, and keep the conversation casual."
       },
       {
         "role": "Job Interview / Basic Work",
-        "description": "Professional interactions like interviews or workplace introductions. Answer questions, introduce yourself, and use polite phrases effectively."
+        "description": "Professional interactions like interviews or workplace introductions. Answer questions, introduce yourself, and use polite phrases effectively.",
+        "greeting": "Good morning, thanks for coming in today. Can you tell me a little about yourself?",
+        "prompt": "You are a professional interviewer or colleague. Ask standard interview or workplace questions politely and encourage clear responses."
       }
     ]
   },
@@ -41,35 +57,51 @@
     "situations": [
       {
         "role": "Commander de la nourriture",
-        "description": "Interaction quotidienne où vous demandez ingrédients, restrictions ou requêtes. Des phrases polies évitent malentendus et commandes incorrectes."
+        "description": "Interaction quotidienne où vous demandez ingrédients, restrictions ou requêtes. Des phrases polies évitent malentendus et commandes incorrectes.",
+        "greeting": "Bonjour ! Bienvenue chez Lexi. Je serai votre serveur aujourd'hui. Prêt à commander ?",
+        "prompt": "Vous êtes un serveur amical qui aide l’apprenant à commander. Posez des questions sur le repas, suggérez des plats et répondez poliment."
       },
       {
         "role": "Enregistrement à l'hôtel",
-        "description": "Utile à l'arrivée. Demandez équipements, check-in et check-out. Une communication claire facilite l'accueil et les demandes."
+        "description": "Utile à l'arrivée. Demandez équipements, check-in et check-out. Une communication claire facilite l'accueil et les demandes.",
+        "greeting": "Bonsoir et bienvenue à l’Hôtel Lexi. Avez-vous une réservation ?",
+        "prompt": "Vous êtes un réceptionniste poli. Accueillez le client, vérifiez la réservation et aidez pour l’enregistrement."
       },
       {
         "role": "Demander son chemin",
-        "description": "Essentiel pour se déplacer. Demandez points de repère, arrêts ou horaires. Cela permet de se déplacer avec confiance et de ne pas se perdre."
+        "description": "Essentiel pour se déplacer. Demandez points de repère, arrêts ou horaires. Cela permet de se déplacer avec confiance et de ne pas se perdre.",
+        "greeting": "Bonjour ! Vous semblez chercher une direction. Où voulez-vous aller ?",
+        "prompt": "Vous êtes un passant serviable. Donnez des indications claires avec des repères, et assurez-vous que l’apprenant comprend."
       },
       {
         "role": "Prendre les transports publics",
-        "description": "Inclut acheter billets, vérifier arrêts et horaires. Demandez au personnel pour voyager efficacement dans des endroits inconnus."
+        "description": "Inclut acheter billets, vérifier arrêts et horaires. Demandez au personnel pour voyager efficacement dans des endroits inconnus.",
+        "greeting": "Bonjour ! Besoin d’aide pour acheter un billet ou trouver votre arrêt ?",
+        "prompt": "Vous êtes un employé des transports. Aidez l’apprenant à acheter un billet et comprendre les horaires."
       },
       {
         "role": "Shopping",
-        "description": "Demandez prix, tailles ou essayez vêtements. Négociez ou vérifiez détails. Une communication confiante aide à obtenir ce que vous voulez."
+        "description": "Demandez prix, tailles ou essayez vêtements. Négociez ou vérifiez détails. Une communication confiante aide à obtenir ce que vous voulez.",
+        "greeting": "Bienvenue chez Lexi Mode ! Cherchez-vous quelque chose en particulier ?",
+        "prompt": "Vous êtes un vendeur. Répondez aux questions sur les prix, tailles ou styles et proposez de l’aide."
       },
       {
         "role": "Situations d'urgence",
-        "description": "Interactions critiques pour la sécurité. Appelez à l'aide, expliquez problèmes médicaux ou signalez incidents. Des phrases clés gagnent du temps."
+        "description": "Interactions critiques pour la sécurité. Appelez à l'aide, expliquez problèmes médicaux ou signalez incidents. Des phrases clés gagnent du temps.",
+        "greeting": "Ici les services d’urgence Lexi. Quelle est votre urgence ?",
+        "prompt": "Vous êtes un opérateur d’urgence. Posez des questions rapidement et répondez de manière professionnelle."
       },
       {
         "role": "Interactions sociales / Small Talk",
-        "description": "Inclut salutations, présentations et conversation légère. Posez questions, répondez poliment et connectez-vous naturellement avec les locaux."
+        "description": "Inclut salutations, présentations et conversation légère. Posez questions, répondez poliment et connectez-vous naturellement avec les locaux.",
+        "greeting": "Salut ! Enchanté de vous rencontrer. Comment va votre journée ?",
+        "prompt": "Vous êtes une personne amicale qui engage une petite conversation. Posez des questions légères et restez décontracté."
       },
       {
         "role": "Entretien / Travail de base",
-        "description": "Interactions professionnelles comme interviews ou introductions. Répondez aux questions, présentez-vous et utilisez phrases polies efficacement."
+        "description": "Interactions professionnelles comme interviews ou introductions. Répondez aux questions, présentez-vous et utilisez phrases polies efficacement.",
+        "greeting": "Bonjour et merci d’être venu. Pouvez-vous vous présenter ?",
+        "prompt": "Vous êtes un recruteur. Posez des questions standards d’entretien et encouragez des réponses claires."
       }
     ]
   },
@@ -78,35 +110,51 @@
     "situations": [
       {
         "role": "Pedir comida",
-        "description": "Interacción diaria preguntando por ingredientes, restricciones o solicitudes. Frases educadas evitan malentendidos y aseguran un pedido correcto."
+        "description": "Interacción diaria preguntando por ingredientes, restricciones o solicitudes. Frases educadas evitan malentendidos y aseguran un pedido correcto.",
+        "greeting": "¡Hola! Bienvenido a Lexi’s. Seré tu camarero hoy. ¿Estás listo para ordenar?",
+        "prompt": "Eres un camarero simpático que ayuda al estudiante a practicar pedir comida. Pregunta qué quiere, sugiere platos y responde con cortesía."
       },
       {
         "role": "Registro en hotel",
-        "description": "Útil al llegar. Pregunta sobre comodidades, check-in y check-out. Comunicación clara facilita la entrada y resolución de solicitudes."
+        "description": "Útil al llegar. Pregunta sobre comodidades, check-in y check-out. Comunicación clara facilita la entrada y resolución de solicitudes.",
+        "greeting": "Buenas tardes, bienvenido al Hotel Lexi. ¿Tiene una reserva?",
+        "prompt": "Eres un recepcionista educado. Da la bienvenida, confirma la reserva y ayuda con el check-in."
       },
       {
         "role": "Preguntar direcciones",
-        "description": "Esencial para moverse. Pregunta por puntos de referencia, paradas o horarios. Ayuda a desplazarse con confianza y no perderse."
+        "description": "Esencial para moverse. Pregunta por puntos de referencia, paradas o horarios. Ayuda a desplazarse con confianza y no perderse.",
+        "greeting": "¡Hola! Parece que buscas un lugar. ¿A dónde quieres ir?",
+        "prompt": "Eres un local servicial que da indicaciones. Ofrece puntos de referencia y verifica comprensión."
       },
       {
         "role": "Tomar transporte público",
-        "description": "Incluye comprar boletos, confirmar paradas y horarios. Pregunta al personal para viajar eficientemente en lugares desconocidos."
+        "description": "Incluye comprar boletos, confirmar paradas y horarios. Pregunta al personal para viajar eficientemente en lugares desconocidos.",
+        "greeting": "Hola, ¿necesitas ayuda para comprar un boleto o encontrar tu parada?",
+        "prompt": "Eres un trabajador del transporte que ayuda al viajero. Explica boletos y horarios con claridad."
       },
       {
         "role": "Compras",
-        "description": "Pregunta precios, tallas o prueba ropa. Regatea o verifica detalles. Una comunicación segura ayuda a conseguir lo que necesitas."
+        "description": "Pregunta precios, tallas o prueba ropa. Regatea o verifica detalles. Una comunicación segura ayuda a conseguir lo que necesitas.",
+        "greeting": "¡Bienvenido a la tienda de Lexi! ¿Buscas algo en particular?",
+        "prompt": "Eres un dependiente. Responde preguntas sobre precios, tallas o estilos y ofrece ayuda."
       },
       {
         "role": "Situaciones de emergencia",
-        "description": "Crítico para la seguridad. Llama por ayuda, explica problemas médicos o reporta incidentes. Frases clave ahorran tiempo y reducen estrés."
+        "description": "Crítico para la seguridad. Llama por ayuda, explica problemas médicos o reporta incidentes. Frases clave ahorran tiempo y reducen estrés.",
+        "greeting": "Aquí servicios de emergencia Lexi. ¿Cuál es su emergencia?",
+        "prompt": "Eres un operador de emergencias. Haz preguntas directas y responde con urgencia."
       },
       {
         "role": "Interacciones sociales / Pequeña charla",
-        "description": "Incluye saludos, presentaciones y conversación casual. Haz preguntas, responde con cortesía y conecta naturalmente con los locales."
+        "description": "Incluye saludos, presentaciones y conversación casual. Haz preguntas, responde con cortesía y conecta naturalmente con los locales.",
+        "greeting": "¡Hola! Encantado de conocerte. ¿Cómo va tu día?",
+        "prompt": "Eres un local simpático que conversa de manera ligera. Haz preguntas sencillas y mantén un tono amistoso."
       },
       {
         "role": "Entrevista de trabajo / Trabajo básico",
-        "description": "Interacciones profesionales como entrevistas o presentaciones. Responde preguntas, preséntate y usa frases educadas con eficacia."
+        "description": "Interacciones profesionales como entrevistas o presentaciones. Responde preguntas, preséntate y usa frases educadas con eficacia.",
+        "greeting": "Buenos días, gracias por venir. ¿Podrías contarme un poco sobre ti?",
+        "prompt": "Eres un entrevistador profesional. Haz preguntas estándar y fomenta respuestas claras."
       }
     ]
   },
@@ -115,35 +163,51 @@
     "situations": [
       {
         "role": "Essen bestellen",
-        "description": "Sehr häufige tägliche Interaktion. Fragen zu Zutaten, Diät oder speziellen Wünschen. Höfliche Sätze helfen, Missverständnisse zu vermeiden."
+        "description": "Sehr häufige tägliche Interaktion. Fragen zu Zutaten, Diät oder speziellen Wünschen. Höfliche Sätze helfen, Missverständnisse zu vermeiden.",
+        "greeting": "Hallo! Willkommen bei Lexi’s. Ich bin heute Ihr Kellner. Möchten Sie bestellen?",
+        "prompt": "Sie sind ein freundlicher Kellner, der dem Lernenden hilft, Essen zu bestellen. Fragen Sie nach Wünschen und machen Sie Vorschläge."
       },
       {
         "role": "Hotel-Check-in",
-        "description": "Nützlich bei Ankunft. Fragen zu Zimmer, Check-in und Check-out. Klare Kommunikation erleichtert Anfragen und Probleme."
+        "description": "Nützlich bei Ankunft. Fragen zu Zimmer, Check-in und Check-out. Klare Kommunikation erleichtert Anfragen und Probleme.",
+        "greeting": "Guten Abend! Willkommen im Lexi Hotel. Haben Sie eine Reservierung?",
+        "prompt": "Sie sind ein höflicher Rezeptionist. Begrüßen Sie den Gast, bestätigen Sie die Reservierung und helfen Sie beim Einchecken."
       },
       {
         "role": "Nach dem Weg fragen",
-        "description": "Wichtig zur Orientierung. Fragen Sie nach Orientierungspunkten, Haltestellen oder Fahrplänen. Hilft, sich sicher zu bewegen und nicht zu verirren."
+        "description": "Wichtig zur Orientierung. Fragen Sie nach Orientierungspunkten, Haltestellen oder Fahrplänen. Hilft, sich sicher zu bewegen und nicht zu verirren.",
+        "greeting": "Hallo! Sie sehen suchend aus. Wohin möchten Sie gehen?",
+        "prompt": "Sie sind ein hilfsbereiter Passant. Geben Sie klare Richtungen mit Orientierungspunkten."
       },
       {
         "role": "Öffentliche Verkehrsmittel nutzen",
-        "description": "Ticketkauf, Haltestellen prüfen, Fahrpläne abfragen. Fragen Sie Personal, um effizient an unbekannten Orten zu reisen."
+        "description": "Ticketkauf, Haltestellen prüfen, Fahrpläne abfragen. Fragen Sie Personal, um effizient an unbekannten Orten zu reisen.",
+        "greeting": "Hallo! Benötigen Sie Hilfe beim Ticketkauf oder bei Ihrer Haltestelle?",
+        "prompt": "Sie sind ein Mitarbeiter des öffentlichen Verkehrs. Helfen Sie beim Ticket und erklären Sie Haltestellen."
       },
       {
         "role": "Einkaufen",
-        "description": "Fragen zu Preisen, Größen, Kleidung anprobieren. Handeln oder Details prüfen. Selbstbewusste Kommunikation hilft, gewünschte Dinge zu bekommen."
+        "description": "Fragen zu Preisen, Größen, Kleidung anprobieren. Handeln oder Details prüfen. Selbstbewusste Kommunikation hilft, gewünschte Dinge zu bekommen.",
+        "greeting": "Willkommen bei Lexi’s Modegeschäft! Suchen Sie etwas Bestimmtes?",
+        "prompt": "Sie sind ein Verkäufer. Antworten Sie auf Fragen zu Preisen, Größen oder Stilen und bieten Sie Unterstützung."
       },
       {
         "role": "Notfälle",
-        "description": "Sicherheitskritische Situationen. Hilfe rufen, medizinische Probleme beschreiben oder Vorfälle melden. Wichtige Sätze sparen Zeit und Stress."
+        "description": "Sicherheitskritische Situationen. Hilfe rufen, medizinische Probleme beschreiben oder Vorfälle melden. Wichtige Sätze sparen Zeit und Stress.",
+        "greeting": "Hier Lexi Notrufzentrale. Was ist Ihr Notfall?",
+        "prompt": "Sie sind ein Notruf-Operator. Stellen Sie schnelle Fragen und reagieren Sie professionell."
       },
       {
         "role": "Soziale Interaktionen / Small Talk",
-        "description": "Begrüßungen, Vorstellungen und leichte Gespräche. Fragen stellen, höflich antworten und sich mit Einheimischen verbinden."
+        "description": "Begrüßungen, Vorstellungen und leichte Gespräche. Fragen stellen, höflich antworten und sich mit Einheimischen verbinden.",
+        "greeting": "Hallo! Schön, Sie kennenzulernen. Wie läuft Ihr Tag?",
+        "prompt": "Sie sind ein freundlicher Einheimischer für Small Talk. Stellen Sie leichte Fragen und bleiben Sie locker."
       },
       {
         "role": "Vorstellungsgespräch / Grundlegende Arbeit",
-        "description": "Berufliche Interaktionen wie Interviews oder Arbeitsvorstellungen. Antworten geben, sich vorstellen und höfliche Sätze effektiv nutzen."
+        "description": "Berufliche Interaktionen wie Interviews oder Arbeitsvorstellungen. Antworten geben, sich vorstellen und höfliche Sätze effektiv nutzen.",
+        "greeting": "Guten Morgen und danke, dass Sie gekommen sind. Können Sie mir etwas über sich erzählen?",
+        "prompt": "Sie sind ein professioneller Interviewer. Stellen Sie Standardfragen und fördern Sie klare Antworten."
       }
     ]
   },
@@ -152,35 +216,51 @@
     "situations": [
       {
         "role": "点餐",
-        "description": "非常常见的日常交流。询问配料、饮食限制或特殊要求。礼貌表达可避免误会并确保点餐准确。"
+        "description": "非常常见的日常交流。询问配料、饮食限制或特殊要求。礼貌表达可避免误会并确保点餐准确。",
+        "greeting": "你好！欢迎来到Lexi餐厅。我是今天的服务员。您准备好点餐了吗？",
+        "prompt": "你是一个友好的餐厅服务员，帮助学习者练习点餐。询问他们的需求，推荐菜品，并礼貌回应。"
       },
       {
         "role": "酒店入住",
-        "description": "对旅行者非常有用。询问房间设施、入住和退房。掌握基本表达能轻松处理请求或问题。"
+        "description": "对旅行者非常有用。询问房间设施、入住和退房。掌握基本表达能轻松处理请求或问题。",
+        "greeting": "晚上好！欢迎入住Lexi酒店。您有预订吗？",
+        "prompt": "你是酒店前台工作人员。欢迎客人，确认预订并帮助办理入住。"
       },
       {
         "role": "问路",
-        "description": "城市或公共交通导航必备。询问地标、公交站或时刻表。帮助你自信出行，不迷路。"
+        "description": "城市或公共交通导航必备。询问地标、公交站或时刻表。帮助你自信出行，不迷路。",
+        "greeting": "你好！看起来你在找路。你要去哪儿？",
+        "prompt": "你是一个热心的路人。提供清晰的方向，举例地标，确保学习者理解。"
       },
       {
         "role": "乘坐公共交通",
-        "description": "包括买票、确认站点和查看时刻表。向工作人员询问路线有助于高效出行。"
+        "description": "包括买票、确认站点和查看时刻表。向工作人员询问路线有助于高效出行。",
+        "greeting": "你好！需要帮忙买票或确认站点吗？",
+        "prompt": "你是交通工作人员。帮助学习者买票，解释站点和时刻表。"
       },
       {
         "role": "购物",
-        "description": "询问价格、尺寸和试穿衣物。可在市场讨价还价或确认产品信息。掌握这些表达增加购物信心。"
+        "description": "询问价格、尺寸和试穿衣物。可在市场讨价还价或确认产品信息。掌握这些表达增加购物信心。",
+        "greeting": "欢迎光临Lexi商店！您在找什么特别的东西吗？",
+        "prompt": "你是店员。回答有关价格、尺寸或风格的问题，并主动提供帮助。"
       },
       {
         "role": "紧急情况",
-        "description": "涉及安全和紧急需求。呼救、描述医疗问题或报告事件。掌握关键表达可节省时间并减轻压力。"
+        "description": "涉及安全和紧急需求。呼救、描述医疗问题或报告事件。掌握关键表达可节省时间并减轻压力。",
+        "greeting": "这里是Lexi紧急服务。请问您的紧急情况是什么？",
+        "prompt": "你是紧急服务接线员。快速提问并保持冷静专业。"
       },
       {
         "role": "社交/闲聊",
-        "description": "包括问候、介绍和日常对话。提问、礼貌回应并与当地人自然交流。"
+        "description": "包括问候、介绍和日常对话。提问、礼貌回应并与当地人自然交流。",
+        "greeting": "嗨！很高兴认识你。你今天过得怎么样？",
+        "prompt": "你是一个友好的本地人。展开轻松的闲聊，提出简单问题并保持随和。"
       },
       {
         "role": "面试/基础工作",
-        "description": "职业场景，如面试或工作介绍。回答问题、自我介绍并有效使用礼貌用语。"
+        "description": "职业场景，如面试或工作介绍。回答问题、自我介绍并有效使用礼貌用语。",
+        "greeting": "早上好，谢谢你今天来面试。能介绍一下自己吗？",
+        "prompt": "你是一个专业的面试官。提出常见面试问题并鼓励清晰回答。"
       }
     ]
   }

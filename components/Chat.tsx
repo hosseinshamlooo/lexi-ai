@@ -1,35 +1,48 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Messages from "./Messages";
 import Controls from "./Controls";
-import { ComponentRef, useRef } from "react";
+import { useVoice } from "./OpenAIVoiceProvider";
 
-export default function Chat() {
-  const ref = useRef<ComponentRef<typeof Messages> | null>(null);
+interface ChatProps {
+  greeting?: string; // The greeting from Hero's selected situation
+  prompt?: string; // The situation-specific prompt for the AI
+}
+
+export default function Chat({ greeting, prompt }: ChatProps) {
+  const { sendMessage, sendAssistantMessage } = useVoice(); // <-- extract both
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // === Send the assistant greeting once on mount ===
+  useEffect(() => {
+    if (greeting && sendAssistantMessage) {
+      sendAssistantMessage(greeting, prompt);
+    }
+  }, [greeting, prompt, sendAssistantMessage]);
+
+  // === Auto-scroll on new messages ===
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new MutationObserver(() => {
+      container.scrollTop = container.scrollHeight;
+    });
+
+    observer.observe(container, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
       id="chat-container"
+      ref={containerRef}
       className="relative grow flex flex-col mx-auto w-full overflow-hidden"
     >
-      {/* Use the provider from ClientPage, do NOT create a new one */}
-      <Messages ref={ref} />
+      <Messages />
       <Controls />
-
-      {/* Auto-scroll when new messages arrive */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            const ref = document.getElementById('chat-container');
-            if(ref) {
-              const observer = new MutationObserver(() => {
-                ref.scrollTop = ref.scrollHeight;
-              });
-              observer.observe(ref, { childList: true, subtree: true });
-            }
-          `,
-        }}
-      />
     </div>
   );
 }
