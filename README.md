@@ -2,8 +2,8 @@
   <h1>Lexi - AI Language Partner</h1>
 </div>
 
-![Lexi Preview 1](images/lexi-preview1.png)
 ![Lexi Preview 2](images/lexi-preview2.png)
+![Lexi Preview 1](images/lexi-preview1.png)
 
 ## Overview
 
