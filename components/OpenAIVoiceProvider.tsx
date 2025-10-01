@@ -30,7 +30,7 @@ interface VoiceContextType {
   unmute: () => void;
   reset: () => void;
   sendMessage: (content: string, prompt?: string) => Promise<void>;
-  sendAssistantMessage: (content: string, prompt?: string) => void; // ✅ add this
+  sendAssistantMessage: (content: string, prompt?: string) => void;
 }
 
 const VoiceContext = createContext<VoiceContextType | null>(null);
@@ -132,19 +132,12 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         source.connect(analyserRef.current);
         updateMicFft();
 
-        // Send greeting if exists
+        // === SEND GREETING ONCE ===
         if (greeting) {
-          const msg: ChatMessage = {
-            type: "assistant_message",
-            message: { role: "assistant", content: greeting },
-            receivedAt: new Date(),
-          };
-          setMessages((prev) => [...prev, msg]);
-          playTTS(greeting);
-          onMessage?.();
+          sendAssistantMessage(greeting, prompt);
         }
 
-        // MediaRecorder setup
+        // === MEDIA RECORDER SETUP ===
         const supportedMime = [
           "audio/webm;codecs=opus",
           "audio/ogg;codecs=opus",
@@ -156,7 +149,6 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         mediaRecorderRef.current = new MediaRecorder(stream, {
           mimeType: supportedMime,
         });
-
         mediaRecorderRef.current.ondataavailable = async (e) => {
           if (!e.data || e.data.size < 2000) return;
 
@@ -165,7 +157,6 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
             : supportedMime.includes("ogg")
             ? "ogg"
             : "webm";
-
           const audioBlob = new Blob([e.data], { type: supportedMime });
 
           try {
@@ -194,13 +185,7 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
             }
 
             if (result.response) {
-              const assistantMsg: ChatMessage = {
-                type: "assistant_message",
-                message: { role: "assistant", content: result.response },
-                receivedAt: new Date(),
-              };
-              setMessages((prev) => [...prev, assistantMsg]);
-              playTTS(result.response);
+              sendAssistantMessage(result.response);
             }
           } catch (err) {
             console.error(err);
@@ -215,10 +200,10 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         onError?.(err as Error);
       }
     },
-    [language, onMessage, onError, playTTS, updateMicFft]
+    [language, onError, onMessage, updateMicFft]
   );
 
-  // === SEND MESSAGE MANUALLY ===
+  // === SEND MESSAGE MANUALLY (USER) ===
   const sendMessage = useCallback(
     async (content: string, prompt?: string) => {
       const userMsg: ChatMessage = {
@@ -236,35 +221,28 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         });
         const data = await res.json();
         if (data.response) {
-          const assistantMsg: ChatMessage = {
-            type: "assistant_message",
-            message: { role: "assistant", content: data.response },
-            receivedAt: new Date(),
-          };
-          setMessages((prev) => [...prev, assistantMsg]);
-          playTTS(data.response);
+          sendAssistantMessage(data.response);
         }
       } catch (err) {
         console.error(err);
         onError?.(err as Error);
       }
     },
-    [language, onError, playTTS]
+    [language, onError]
   );
 
+  // === SEND ASSISTANT MESSAGE (ONLY ONCE FOR GREETING OR SYSTEM) ===
   const sendAssistantMessage = useCallback(
     (text: string, prompt?: string) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          type: "assistant_message",
-          message: { role: "assistant", content: text },
-          receivedAt: new Date(),
-        },
-      ]);
+      const assistantMsg: ChatMessage = {
+        type: "assistant_message",
+        message: { role: "assistant", content: text },
+        receivedAt: new Date(),
+      };
+      setMessages((prev) => [...prev, assistantMsg]);
       playTTS(text);
 
-      // Optional: you can also send it to GPT if you want it to respond further
+      // Optional: trigger GPT only if prompt is explicitly provided
       if (prompt) sendMessage(prompt);
     },
     [playTTS, sendMessage]

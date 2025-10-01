@@ -6,18 +6,20 @@ import Controls from "./Controls";
 import { useVoice } from "./OpenAIVoiceProvider";
 
 interface ChatProps {
-  greeting?: string; // The greeting from Hero's selected situation
-  prompt?: string; // The situation-specific prompt for the AI
+  greeting?: string; // The assistant greeting from the Hero section
+  prompt?: string; // Optional system prompt or situation-specific context
 }
 
 export default function Chat({ greeting, prompt }: ChatProps) {
-  const { sendMessage, sendAssistantMessage } = useVoice(); // <-- extract both
+  const { sendAssistantMessage } = useVoice(); // Only call the assistant message
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const hasSentGreeting = useRef(false); // Track if greeting has been sent
 
-  // === Send the assistant greeting once on mount ===
+  // === Send the assistant greeting ONCE when component mounts or greeting changes ===
   useEffect(() => {
-    if (greeting && sendAssistantMessage) {
+    if (greeting && !hasSentGreeting.current) {
       sendAssistantMessage(greeting, prompt);
+      hasSentGreeting.current = true; // Prevent duplicate greetings
     }
   }, [greeting, prompt, sendAssistantMessage]);
 

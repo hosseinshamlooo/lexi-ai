@@ -7,8 +7,8 @@ import StartCall from "./StartCall";
 export type Situation = {
   role: string;
   description: string;
-  greeting: string; // greeting for this situation
-  prompt: string; // AI prompt for this situation
+  greeting: string; // Assistant greeting for this situation
+  prompt: string; // AI prompt / context for this situation
   image?: string;
 };
 
@@ -16,7 +16,7 @@ interface HeroProps {
   voice?: string;
   situations: Situation[];
   title: string;
-  onStartCall?: (situation: Situation) => void; // callback with selected situation
+  onStartCall?: (situation: Situation) => void; // callback sends full situation
 }
 
 export default function Hero({
@@ -27,7 +27,6 @@ export default function Hero({
 }: HeroProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Random positioning/rotation for images
   const randomStyles = useMemo(
     () =>
       situations.map(() => ({
@@ -79,7 +78,7 @@ export default function Hero({
           </div>
         </div>
 
-        {/* Right: Text, Start Call, Navigation */}
+        {/* Right: Text, StartCall, Navigation */}
         <div className="flex flex-col items-start text-left max-w-md space-y-4 mt-16">
           <h1 className="text-5xl font-extrabold whitespace-nowrap">{title}</h1>
 
@@ -92,10 +91,11 @@ export default function Hero({
             </p>
           </div>
 
+          {/* Pass full situation to Chat via onStartCall */}
           <StartCall
             voice={voice}
             inline
-            onClick={() => onStartCall?.(activeSituation)} // pass the active situation
+            onClick={() => onStartCall?.(activeSituation)}
           />
 
           <div className="flex gap-4 mt-4">
