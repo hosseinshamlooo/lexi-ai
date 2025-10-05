@@ -9,9 +9,17 @@ import React, {
   useEffect,
 } from "react";
 
+// ========================
+// Types
+// ========================
+
 export interface ChatMessage {
   type: "user_message" | "assistant_message";
-  message: { role: "user" | "assistant"; content: string };
+  message: {
+    role: "user" | "assistant";
+    content: string;
+    translations: Record<string, string>; // always defined
+  };
   receivedAt: Date;
 }
 
@@ -32,9 +40,15 @@ interface VoiceContextType {
   sendMessage: (content: string, prompt?: string) => Promise<void>;
   sendAssistantMessage: (content: string) => void;
   sendPromptToLLM: (prompt: string) => Promise<void>;
+  playTTS: (text: string) => void;
 }
 
+// ========================
+// Context
+// ========================
+
 const VoiceContext = createContext<VoiceContextType | null>(null);
+
 export const useVoice = () => {
   const context = useContext(VoiceContext);
   if (!context)
@@ -48,6 +62,10 @@ interface OpenAIVoiceProviderProps {
   onMessage?: () => void;
   onError?: (err: Error) => void;
 }
+
+// ========================
+// Provider
+// ========================
 
 export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
   children,
@@ -67,27 +85,45 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const activePromptRef = useRef<string>(""); // store current situation prompt
+  const activePromptRef = useRef<string>("");
 
-  // === Mic FFT ===
+  // ========================
+  // Helpers
+  // ========================
+
+  const ensureTranslations = (text: string): Record<string, string> => {
+    // ⚡ Replace this with a real translation API later
+    const words = text.split(/\s+/);
+    const translations: Record<string, string> = {};
+    words.forEach((w) => {
+      const clean = w.replace(/[.,?!;]/g, "");
+      if (clean) translations[clean] = `EN:${clean}`;
+    });
+    return translations;
+  };
+
+  // Mic FFT
   const updateMicFft = useCallback(() => {
     if (analyserRef.current && !isMuted) {
       const bufferLength = analyserRef.current.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
       analyserRef.current.getByteFrequencyData(dataArray);
       setMicFft(Array.from(dataArray).map((v) => v / 255));
-    } else setMicFft([]);
+    } else {
+      setMicFft([]);
+    }
     animationFrameRef.current = requestAnimationFrame(updateMicFft);
   }, [isMuted]);
 
-  // === TTS ===
+  // TTS
   const playTTS = useCallback(
     (text: string) => {
       const speak = () => {
         const voices = window.speechSynthesis.getVoices();
         const selectedVoice =
-          voices.find((v) => v.lang.toLowerCase().startsWith(language)) ||
-          voices[0];
+          voices.find((v) =>
+            v.lang.toLowerCase().startsWith(language.toLowerCase())
+          ) || voices[0];
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.voice = selectedVoice;
         window.speechSynthesis.speak(utterance);
@@ -96,7 +132,9 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         window.speechSynthesis.addEventListener("voiceschanged", speak, {
           once: true,
         });
-      } else speak();
+      } else {
+        speak();
+      }
     },
     [language]
   );
@@ -107,26 +145,36 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     }
   }, []);
 
-  // === Send assistant message ===
+  // ========================
+  // Message handling
+  // ========================
+
   const sendAssistantMessage = useCallback(
     (text: string) => {
       const msg: ChatMessage = {
         type: "assistant_message",
-        message: { role: "assistant", content: text },
+        message: {
+          role: "assistant",
+          content: text,
+          translations: ensureTranslations(text),
+        },
         receivedAt: new Date(),
       };
       setMessages((prev) => [...prev, msg]);
       playTTS(text);
     },
-    [playTTS]
+    [ensureTranslations, playTTS]
   );
 
-  // === Send user message (typed or UI triggered) ===
   const sendMessage = useCallback(
     async (content: string, prompt?: string) => {
       const userMsg: ChatMessage = {
         type: "user_message",
-        message: { role: "user", content },
+        message: {
+          role: "user",
+          content,
+          translations: {}, // no translations for user messages
+        },
         receivedAt: new Date(),
       };
       setMessages((prev) => [...prev, userMsg]);
@@ -151,10 +199,9 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     [language, onError, sendAssistantMessage]
   );
 
-  // === Send prompt silently (no user message) ===
   const sendPromptToLLM = useCallback(
     async (prompt: string) => {
-      activePromptRef.current = prompt; // set active situation
+      activePromptRef.current = prompt;
       try {
         await fetch("/api/voice/sendMessage", {
           method: "POST",
@@ -169,7 +216,10 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     [language, onError]
   );
 
-  // === Connect ===
+  // ========================
+  // Connection handling
+  // ========================
+
   const connect = useCallback(
     async ({
       voice,
@@ -191,65 +241,8 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         source.connect(analyserRef.current);
         updateMicFft();
 
-        // Show greeting
         if (greeting) sendAssistantMessage(greeting);
-
-        // Store + send initial prompt
         if (prompt) await sendPromptToLLM(prompt);
-
-        // Recorder
-        const supportedMime = [
-          "audio/webm;codecs=opus",
-          "audio/ogg;codecs=opus",
-          "audio/wav",
-        ].find(MediaRecorder.isTypeSupported);
-        if (!supportedMime)
-          throw new Error("No supported MediaRecorder MIME type");
-
-        mediaRecorderRef.current = new MediaRecorder(stream, {
-          mimeType: supportedMime,
-        });
-        mediaRecorderRef.current.ondataavailable = async (e) => {
-          if (!e.data || e.data.size < 2000) return;
-
-          const extension = supportedMime.includes("wav")
-            ? "wav"
-            : supportedMime.includes("ogg")
-            ? "ogg"
-            : "webm";
-          const audioBlob = new Blob([e.data], { type: supportedMime });
-
-          try {
-            const formData = new FormData();
-            formData.append("file", audioBlob, `chunk.${extension}`);
-            formData.append("voice", voice || "");
-            formData.append("language", language);
-            formData.append("prompt", activePromptRef.current);
-
-            const serverRes = await fetch("/api/voice/process", {
-              method: "POST",
-              body: formData,
-            });
-            if (!serverRes.ok) throw new Error("Failed to process audio");
-
-            const result = await serverRes.json();
-
-            if (result.text) {
-              const userMsg: ChatMessage = {
-                type: "user_message",
-                message: { role: "user", content: result.text },
-                receivedAt: new Date(),
-              };
-              setMessages((prev) => [...prev, userMsg]);
-              onMessage?.();
-            }
-
-            if (result.response) sendAssistantMessage(result.response);
-          } catch (err) {
-            console.error(err);
-            onError?.(err as Error);
-          }
-        };
 
         setStatus({ value: "connected" });
       } catch (err) {
@@ -258,14 +251,7 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         onError?.(err as Error);
       }
     },
-    [
-      language,
-      onError,
-      onMessage,
-      updateMicFft,
-      sendAssistantMessage,
-      sendPromptToLLM,
-    ]
+    [onError, sendAssistantMessage, sendPromptToLLM, updateMicFft]
   );
 
   const disconnect = useCallback(() => {
@@ -293,23 +279,14 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     setStatus({ value: "idle" });
   }, [disconnect]);
 
-  const mute = useCallback(() => {
-    setIsMuted(true);
-    if (mediaRecorderRef.current?.state === "recording")
-      mediaRecorderRef.current.stop();
-  }, []);
-
-  const unmute = useCallback(() => {
-    setIsMuted(false);
-    if (
-      status.value === "connected" &&
-      mediaRecorderRef.current?.state === "inactive"
-    ) {
-      mediaRecorderRef.current.start();
-    }
-  }, [status.value]);
+  const mute = useCallback(() => setIsMuted(true), []);
+  const unmute = useCallback(() => setIsMuted(false), []);
 
   useEffect(() => () => disconnect(), [disconnect]);
+
+  // ========================
+  // Return
+  // ========================
 
   return (
     <VoiceContext.Provider
@@ -326,6 +303,7 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         sendMessage,
         sendAssistantMessage,
         sendPromptToLLM,
+        playTTS,
       }}
     >
       {children}
