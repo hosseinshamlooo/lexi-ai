@@ -42,12 +42,23 @@ async function summarizeHistory() {
 
 export async function POST(req: NextRequest) {
   try {
+    // Check for API key first
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("❌ OPENAI_API_KEY not configured");
+      return NextResponse.json(
+        { error: "OpenAI API key not configured. Please add OPENAI_API_KEY to your .env.local file" },
+        { status: 500 }
+      );
+    }
+
     const formData = await req.formData();
     const audioFile = formData.get("file") as File | null;
     const language = (formData.get("language") as string) || "en";
     const prompt =
       (formData.get("prompt") as string) ||
       `You are a helpful assistant. Keep responses conversational, short (max 3 sentences), and in the user's language (${language}).`;
+
+    console.log(`📥 Received audio file: ${audioFile?.name}, size: ${audioFile?.size} bytes, language: ${language}`);
 
     if (!audioFile) {
       return NextResponse.json(
@@ -56,7 +67,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (audioFile.size === 0) {
+      return NextResponse.json(
+        { error: "Audio file is empty. Please record some audio before submitting." },
+        { status: 400 }
+      );
+    }
+
     // === Transcribe audio with Whisper ===
+    console.log("🎧 Sending to Whisper for transcription...");
     const transcription = await openai.audio.transcriptions.create({
       file: audioFile,
       model: "whisper-1",
@@ -64,6 +83,7 @@ export async function POST(req: NextRequest) {
     });
 
     const userText = transcription.text || "";
+    console.log(`✅ Transcription: "${userText}"`);
     conversationHistory.push({ role: "user", content: userText });
 
     // Summarize if history is too long
@@ -86,6 +106,7 @@ export async function POST(req: NextRequest) {
     // Add current history
     messages.push(...conversationHistory);
 
+    console.log("🤖 Sending to GPT for response...");
     const chatResponse = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       max_tokens: 120,
@@ -94,6 +115,7 @@ export async function POST(req: NextRequest) {
 
     const rawResponse = chatResponse.choices?.[0]?.message?.content || "";
     const cleanResponse = cleanForTTS(rawResponse);
+    console.log(`✅ AI Response: "${cleanResponse}"`);
 
     conversationHistory.push({ role: "assistant", content: cleanResponse });
 
@@ -103,6 +125,11 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("❌ Process route error:", err);
+    console.error("Error details:", {
+      message: err.message,
+      status: err.status,
+      type: err.type,
+    });
     return NextResponse.json(
       { error: err.message || "Failed to process audio" },
       { status: 500 }

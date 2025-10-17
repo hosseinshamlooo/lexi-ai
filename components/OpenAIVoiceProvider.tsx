@@ -18,7 +18,6 @@ export interface ChatMessage {
   message: {
     role: "user" | "assistant";
     content: string;
-    translations: Record<string, string>; // always defined
   };
   receivedAt: Date;
 }
@@ -86,21 +85,11 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const activePromptRef = useRef<string>("");
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // ========================
   // Helpers
   // ========================
-
-  const ensureTranslations = (text: string): Record<string, string> => {
-    // ⚡ Replace this with a real translation API later
-    const words = text.split(/\s+/);
-    const translations: Record<string, string> = {};
-    words.forEach((w) => {
-      const clean = w.replace(/[.,?!;]/g, "");
-      if (clean) translations[clean] = `EN:${clean}`;
-    });
-    return translations;
-  };
 
   // Mic FFT
   const updateMicFft = useCallback(() => {
@@ -118,17 +107,114 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
   // TTS
   const playTTS = useCallback(
     (text: string) => {
+      if (!text) {
+        console.log("TTS: No text provided");
+        return;
+      }
+
+      console.log("TTS: Attempting to speak:", text);
+
       const speak = () => {
         const voices = window.speechSynthesis.getVoices();
-        const selectedVoice =
-          voices.find((v) =>
-            v.lang.toLowerCase().startsWith(language.toLowerCase())
-          ) || voices[0];
+        console.log(
+          `TTS: Available voices (${voices.length}):`,
+          voices.map((v) => `${v.name} (${v.lang})`)
+        );
+        console.log(`TTS: Looking for language: ${language}`);
+
+        // Prefer Google voices over others
+        const matchingVoices = voices.filter((v) =>
+          v.lang.toLowerCase().startsWith(language.toLowerCase())
+        );
+
+        const googleVoice = matchingVoices.find((v) =>
+          v.name.includes("Google")
+        );
+        const selectedVoice = googleVoice || matchingVoices[0] || voices[0];
+
+        console.log(
+          `TTS: Selected voice:`,
+          selectedVoice?.name,
+          `(${selectedVoice?.lang})`
+        );
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.voice = selectedVoice;
+        utterance.lang = selectedVoice?.lang || language;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        utterance.onstart = () => {
+          console.log("✅ TTS started:", text.substring(0, 50));
+          console.log("TTS: Volume level:", utterance.volume);
+        };
+        utterance.onend = () => {
+          console.log("✅ TTS ended successfully");
+        };
+        utterance.onpause = () => {
+          console.log("⏸️ TTS paused");
+        };
+        utterance.onresume = () => {
+          console.log("▶️ TTS resumed");
+        };
+        utterance.onboundary = (e) => {
+          console.log("🔊 TTS boundary:", e.name, "at char", e.charIndex);
+        };
+        utterance.onerror = (e) => {
+          console.error("❌ TTS error:", e);
+          console.error("Error details:", {
+            error: e.error,
+            charIndex: e.charIndex,
+            elapsedTime: e.elapsedTime,
+          });
+        };
+
+        console.log("TTS: Calling speechSynthesis.speak()");
+        console.log(
+          "TTS: Current paused status:",
+          window.speechSynthesis.paused
+        );
+
+        // Resume if paused (Chrome bug workaround)
+        if (window.speechSynthesis.paused) {
+          console.log("TTS: Resuming paused speech synthesis");
+          window.speechSynthesis.resume();
+        }
+
         window.speechSynthesis.speak(utterance);
+
+        // Chrome bug workaround: resume after a short delay
+        setTimeout(() => {
+          if (window.speechSynthesis.paused) {
+            console.log("TTS: Resuming after speak (Chrome workaround)");
+            window.speechSynthesis.resume();
+          }
+        }, 50);
+
+        // Check if it's actually speaking
+        setTimeout(() => {
+          console.log("TTS: Speaking status:", window.speechSynthesis.speaking);
+          console.log("TTS: Pending status:", window.speechSynthesis.pending);
+          console.log("TTS: Paused status:", window.speechSynthesis.paused);
+        }, 100);
+
+        // Check again after 1 second
+        setTimeout(() => {
+          console.log(
+            "TTS [1s later]: Speaking:",
+            window.speechSynthesis.speaking
+          );
+          console.log(
+            "TTS [1s later]: Pending:",
+            window.speechSynthesis.pending
+          );
+        }, 1000);
       };
-      if (!window.speechSynthesis.getVoices().length) {
+
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) {
+        console.log("TTS: Waiting for voices to load...");
         window.speechSynthesis.addEventListener("voiceschanged", speak, {
           once: true,
         });
@@ -141,6 +227,8 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
 
   const stopTTS = useCallback(() => {
     if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      console.log("🛑 stopTTS: Cancelling speech synthesis");
+      console.trace("stopTTS called from:");
       window.speechSynthesis.cancel();
     }
   }, []);
@@ -156,65 +244,35 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         message: {
           role: "assistant",
           content: text,
-          translations: ensureTranslations(text),
         },
         receivedAt: new Date(),
       };
       setMessages((prev) => [...prev, msg]);
       playTTS(text);
     },
-    [ensureTranslations, playTTS]
+    [playTTS]
   );
 
-  const sendMessage = useCallback(
-    async (content: string, prompt?: string) => {
-      const userMsg: ChatMessage = {
-        type: "user_message",
-        message: {
-          role: "user",
-          content,
-          translations: {}, // no translations for user messages
-        },
-        receivedAt: new Date(),
-      };
-      setMessages((prev) => [...prev, userMsg]);
+  const sendMessage = useCallback(async (content: string, prompt?: string) => {
+    const userMsg: ChatMessage = {
+      type: "user_message",
+      message: {
+        role: "user",
+        content,
+      },
+      receivedAt: new Date(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
 
-      try {
-        const res = await fetch("/api/voice/sendMessage", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: content,
-            prompt: prompt || activePromptRef.current,
-            language,
-          }),
-        });
-        const data = await res.json();
-        if (data.response) sendAssistantMessage(data.response);
-      } catch (err) {
-        console.error(err);
-        onError?.(err as Error);
-      }
-    },
-    [language, onError, sendAssistantMessage]
-  );
+    // Note: sendMessage functionality can be implemented here if needed
+    // For now, it just adds the user message to the chat
+  }, []);
 
-  const sendPromptToLLM = useCallback(
-    async (prompt: string) => {
-      activePromptRef.current = prompt;
-      try {
-        await fetch("/api/voice/sendMessage", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: "", prompt, language }),
-        });
-      } catch (err) {
-        console.error(err);
-        onError?.(err as Error);
-      }
-    },
-    [language, onError]
-  );
+  const sendPromptToLLM = useCallback(async (prompt: string) => {
+    activePromptRef.current = prompt;
+    // Note: sendPromptToLLM functionality can be implemented here if needed
+    // For now, it just stores the prompt in the ref
+  }, []);
 
   // ========================
   // Connection handling
@@ -279,8 +337,105 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     setStatus({ value: "idle" });
   }, [disconnect]);
 
-  const mute = useCallback(() => setIsMuted(true), []);
-  const unmute = useCallback(() => setIsMuted(false), []);
+  const mute = useCallback(() => {
+    setIsMuted(true);
+
+    // Stop recording when muted
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "recording"
+    ) {
+      console.log("🎙️ Stopping recording...");
+      mediaRecorderRef.current.stop();
+    }
+  }, []);
+
+  const unmute = useCallback(() => {
+    setIsMuted(false);
+
+    // Start recording when unmuted
+    if (streamRef.current && status.value === "connected") {
+      console.log("🎙️ Starting recording...");
+      audioChunksRef.current = [];
+
+      const mediaRecorder = new MediaRecorder(streamRef.current, {
+        mimeType: "audio/webm",
+      });
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        console.log("🎙️ Recording stopped, processing audio...");
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
+
+        // Send to API for transcription
+        try {
+          const formData = new FormData();
+          formData.append("file", audioBlob, "recording.webm");
+          formData.append("language", language);
+          formData.append("prompt", activePromptRef.current);
+
+          const response = await fetch("/api/voice/process", {
+            method: "POST",
+            body: formData,
+          });
+
+          let data;
+          const contentType = response.headers.get("content-type");
+
+          if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+          } else {
+            // Server returned HTML (error page)
+            const text = await response.text();
+            console.error(
+              "❌ Server returned non-JSON response:",
+              text.substring(0, 500)
+            );
+            throw new Error(
+              "Server error. Check console for details and ensure OPENAI_API_KEY is configured in .env.local"
+            );
+          }
+
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to process audio");
+          }
+          console.log("📝 Transcription:", data.text);
+          console.log("🤖 AI Response:", data.response);
+
+          // Add user message
+          if (data.text) {
+            const userMsg: ChatMessage = {
+              type: "user_message",
+              message: {
+                role: "user",
+                content: data.text,
+              },
+              receivedAt: new Date(),
+            };
+            setMessages((prev) => [...prev, userMsg]);
+          }
+
+          // Add assistant response
+          if (data.response) {
+            sendAssistantMessage(data.response);
+          }
+        } catch (error) {
+          console.error("❌ Error processing audio:", error);
+          onError?.(error as Error);
+        }
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+    }
+  }, [language, status, onError, sendAssistantMessage]);
 
   useEffect(() => () => disconnect(), [disconnect]);
 

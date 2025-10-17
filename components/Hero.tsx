@@ -13,16 +13,18 @@ export type Situation = {
 };
 
 interface HeroProps {
-  voice?: string;
   situations: Situation[];
   title: string;
-  onStartCall?: (situation: Situation) => void; // callback sends full situation
+  voice?: string;
+  language?: string;
+  onStartCall?: (situation: Situation) => void;
 }
 
 export default function Hero({
-  voice,
   situations,
   title,
+  voice,
+  language = "en",
   onStartCall,
 }: HeroProps) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -91,10 +93,9 @@ export default function Hero({
             </p>
           </div>
 
-          {/* Pass full situation to Chat via onStartCall */}
           <StartCall
-            voice={voice}
             inline
+            voice={voice}
             onClick={() => onStartCall?.(activeSituation)}
           />
 

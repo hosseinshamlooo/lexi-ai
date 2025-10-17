@@ -6,6 +6,7 @@ import { OpenAIVoiceProvider } from "@/components/OpenAIVoiceProvider";
 import { Nav } from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Controls from "@/components/Controls";
+import FeedbackPage from "@/components/FeedbackPage";
 import translationsJSON from "@/translations.json";
 import { toast } from "sonner";
 
@@ -14,11 +15,13 @@ const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
 export default function ClientPage() {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [callStarted, setCallStarted] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [activeSituation, setActiveSituation] = useState<null | {
     role: string;
     description: string;
     greeting: string;
     prompt: string;
+    image?: string;
   }>(null);
 
   const voice = process.env.NEXT_PUBLIC_OPENAI_VOICE || "onyx";
@@ -38,6 +41,23 @@ export default function ClientPage() {
   >;
 
   const currentTranslation = typedTranslations[selectedLanguage];
+
+  // Show feedback page if call ended
+  if (showFeedback && activeSituation) {
+    return (
+      <FeedbackPage
+        onBack={() => {
+          setShowFeedback(false);
+          setActiveSituation(null);
+          // scroll back to Hero smoothly
+          const hero = document.getElementById("hero");
+          hero?.scrollIntoView({ behavior: "smooth" });
+        }}
+        language={selectedLanguage}
+        situation={activeSituation}
+      />
+    );
+  }
 
   return (
     <OpenAIVoiceProvider
@@ -73,10 +93,8 @@ export default function ClientPage() {
             <Controls
               onEndCall={() => {
                 setCallStarted(false);
-                setActiveSituation(null);
-                // scroll back to Hero smoothly
-                const hero = document.getElementById("hero");
-                hero?.scrollIntoView({ behavior: "smooth" });
+                setShowFeedback(true);
+                // Keep activeSituation for feedback page
               }}
             />
           </>
