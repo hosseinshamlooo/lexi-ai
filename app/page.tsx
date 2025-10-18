@@ -67,6 +67,7 @@ export default function ClientPage() {
       <Nav
         selectedLanguage={selectedLanguage}
         setSelectedLanguage={setSelectedLanguage}
+        showFeedback={showFeedback}
       />
 
       <div className="flex flex-col w-full">

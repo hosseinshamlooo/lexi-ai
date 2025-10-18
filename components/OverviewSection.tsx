@@ -50,7 +50,7 @@ export default function OverviewSection({
       </p>
 
       {/* Message Section */}
-      <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8">
+      <div className="bg-blue-50 dark:bg-blue-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8">
         <h3 className="font-semibold mb-4">Add message for Lexi</h3>
         <textarea
           value={message}

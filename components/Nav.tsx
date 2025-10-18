@@ -22,9 +22,14 @@ const languages: Language[] = [
 interface NavProps {
   selectedLanguage: string;
   setSelectedLanguage: (lang: string) => void;
+  showFeedback?: boolean;
 }
 
-export const Nav = ({ selectedLanguage, setSelectedLanguage }: NavProps) => {
+export const Nav = ({
+  selectedLanguage,
+  setSelectedLanguage,
+  showFeedback = false,
+}: NavProps) => {
   const { theme, setTheme } = useTheme();
   const [langOpen, setLangOpen] = useState(false);
 
@@ -32,7 +37,11 @@ export const Nav = ({ selectedLanguage, setSelectedLanguage }: NavProps) => {
     languages.find((l) => l.code === selectedLanguage) || languages[0];
 
   return (
-    <div className="fixed top-0 right-0 left-0 px-4 py-2 flex items-center h-16 z-50 bg-[var(--color-background)]">
+    <div
+      className={`fixed top-0 right-0 left-0 px-4 py-2 flex items-center h-16 z-50 bg-[var(--color-background)] ${
+        showFeedback ? "border-b-2 border-gray-300 dark:border-gray-600" : ""
+      }`}
+    >
       <div className="ml-auto flex items-center gap-3 flex-nowrap relative">
         {/* Theme toggle */}
         <Button

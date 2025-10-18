@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { PiSquaresFour } from "react-icons/pi";
 import OverviewSection from "./OverviewSection";
 import RecapSection from "./RecapSection";
 import ProgressSection from "./ProgressSection";
+import FeedbackSection from "./FeedbackSection";
 
 interface FeedbackPageProps {
   onBack: () => void;
@@ -102,9 +103,9 @@ export default function FeedbackPage({
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-6 py-6">
         {/* Title */}
-        <h1 className="text-3xl font-bold mb-6">{situation.role}</h1>
+        <h1 className="text-5xl font-bold mb-8">{situation.role}</h1>
 
         {/* Tabs */}
         <div className="flex gap-8 mb-8 border-b border-[var(--color-border)]">
@@ -149,7 +150,22 @@ export default function FeedbackPage({
                   : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
               }`}
             >
-              {tab.icon && <tab.icon className="h-5 w-5" />}
+              {tab.id === "overview" && (
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                </svg>
+              )}
               {tab.label}
               <span className="bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
                 {tab.count}
@@ -181,6 +197,14 @@ export default function FeedbackPage({
             feedbackData={feedbackData}
             onNavigateToRecap={() => setCurrentView("recap")}
             onNavigateToFeedback={() => setCurrentView("feedback")}
+          />
+        )}
+
+        {currentView === "feedback" && (
+          <FeedbackSection
+            feedbackData={feedbackData}
+            onNavigateToProgress={() => setCurrentView("progress")}
+            onNavigateToVocabulary={() => setCurrentView("vocabulary")}
           />
         )}
 

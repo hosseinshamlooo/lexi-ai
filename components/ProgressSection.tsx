@@ -37,7 +37,7 @@ export default function ProgressSection({
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Total words card */}
-              <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-6">
+              <div className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <h4 className="font-medium">Total words</h4>
                   <div className="relative group">
@@ -57,7 +57,7 @@ export default function ProgressSection({
               </div>
 
               {/* New words card */}
-              <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-6">
+              <div className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <h4 className="font-medium">New words</h4>
                   <div className="relative group">
@@ -84,7 +84,7 @@ export default function ProgressSection({
             <h3 className="text-lg font-semibold mb-4">Speaking statistics</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Speaking speed card */}
-              <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-6">
+              <div className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <h4 className="font-medium">Speaking speed</h4>
                   <div className="relative group">
@@ -135,7 +135,7 @@ export default function ProgressSection({
               </div>
 
               {/* Speaking time card */}
-              <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-6">
+              <div className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <h4 className="font-medium">Speaking time</h4>
                   <div className="relative group">
@@ -182,9 +182,38 @@ export default function ProgressSection({
 
                   {/* Grid lines */}
                   <div className="absolute left-12 right-0 h-24">
-                    <div className="absolute top-0 w-full border-t border-dashed border-gray-300"></div>
-                    <div className="absolute top-1/2 w-full border-t border-dashed border-gray-300"></div>
-                    <div className="absolute bottom-0 w-full border-t border-solid border-gray-300"></div>
+                    {/* Light mode dashed lines */}
+                    <div
+                      className="absolute top-0 w-full h-[1.5px] dark:hidden"
+                      style={{
+                        backgroundImage:
+                          "repeating-linear-gradient(to right, rgb(156, 163, 175) 0px, rgb(156, 163, 175) 10px, transparent 10px, transparent 15px)",
+                      }}
+                    ></div>
+                    <div
+                      className="absolute top-1/2 w-full h-[1.5px] dark:hidden"
+                      style={{
+                        backgroundImage:
+                          "repeating-linear-gradient(to right, rgb(156, 163, 175) 0px, rgb(156, 163, 175) 10px, transparent 10px, transparent 15px)",
+                      }}
+                    ></div>
+                    {/* Dark mode dashed lines */}
+                    <div
+                      className="absolute top-0 w-full h-[1.5px] hidden dark:block"
+                      style={{
+                        backgroundImage:
+                          "repeating-linear-gradient(to right, rgb(107, 114, 128) 0px, rgb(107, 114, 128) 10px, transparent 10px, transparent 15px)",
+                      }}
+                    ></div>
+                    <div
+                      className="absolute top-1/2 w-full h-[1.5px] hidden dark:block"
+                      style={{
+                        backgroundImage:
+                          "repeating-linear-gradient(to right, rgb(107, 114, 128) 0px, rgb(107, 114, 128) 10px, transparent 10px, transparent 15px)",
+                      }}
+                    ></div>
+                    {/* Solid bottom line */}
+                    <div className="absolute bottom-0 w-full border-t-[1.5px] border-solid border-gray-400 dark:border-gray-500"></div>
                   </div>
 
                   {/* Chart area */}
