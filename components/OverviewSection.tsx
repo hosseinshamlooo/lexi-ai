@@ -61,14 +61,6 @@ export default function OverviewSection({
         />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Star className="h-4 w-4" />
-              Draft with assistant
-            </Button>
             <p className="text-sm text-[var(--color-muted-foreground)]">
               Pro tip: A kind message can boost your student's motivation
               between lessons.
