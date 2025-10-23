@@ -35,7 +35,8 @@ const Messages = forwardRef<
           {messages.map((msg: any, index: number) => {
             if (
               msg.type === "user_message" ||
-              msg.type === "assistant_message"
+              msg.type === "assistant_message" ||
+              msg.type === "typing_indicator"
             ) {
               const id = msg.type + index;
 
@@ -46,7 +47,11 @@ const Messages = forwardRef<
                     "w-[80%]",
                     "bg-card",
                     "border border-border rounded-xl",
-                    msg.type === "user_message" ? "ml-auto" : ""
+                    msg.type === "user_message" ||
+                      (msg.type === "typing_indicator" &&
+                        msg.message.role === "user")
+                      ? "ml-auto"
+                      : ""
                   )}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -95,7 +100,13 @@ const Messages = forwardRef<
                     )}
 
                     {/* Text */}
-                    <span className="whitespace-pre-line">
+                    <span
+                      className={cn(
+                        "whitespace-pre-line",
+                        msg.type === "typing_indicator" &&
+                          "italic text-gray-500"
+                      )}
+                    >
                       {msg.message.content}
                     </span>
                   </div>

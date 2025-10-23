@@ -14,12 +14,13 @@ import React, {
 // ========================
 
 export interface ChatMessage {
-  type: "user_message" | "assistant_message";
+  type: "user_message" | "assistant_message" | "typing_indicator";
   message: {
     role: "user" | "assistant";
     content: string;
   };
   receivedAt: Date;
+  isTyping?: boolean;
 }
 
 interface VoiceContextType {
@@ -247,7 +248,36 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
         },
         receivedAt: new Date(),
       };
-      setMessages((prev) => [...prev, msg]);
+
+      // Replace assistant typing indicator if it exists, otherwise add new message
+      setMessages((prev) => {
+        console.log(
+          "🔍 sendAssistantMessage - before adding assistant message:",
+          prev
+        );
+        const lastMessage = prev[prev.length - 1];
+        if (
+          lastMessage &&
+          lastMessage.type === "typing_indicator" &&
+          lastMessage.message.role === "assistant" &&
+          lastMessage.isTyping
+        ) {
+          // Replace the assistant typing indicator with the actual message
+          const updatedMessages = [...prev.slice(0, -1), msg];
+          console.log(
+            "🔍 sendAssistantMessage - after replacing typing indicator:",
+            updatedMessages
+          );
+          return updatedMessages;
+        }
+        const updatedMessages = [...prev, msg];
+        console.log(
+          "🔍 sendAssistantMessage - after adding new message:",
+          updatedMessages
+        );
+        return updatedMessages;
+      });
+
       playTTS(text);
     },
     [playTTS]
@@ -346,6 +376,7 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
       mediaRecorderRef.current.state === "recording"
     ) {
       console.log("🎙️ Stopping recording...");
+
       mediaRecorderRef.current.stop();
     }
   }, []);
@@ -356,6 +387,19 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
     // Start recording when unmuted
     if (streamRef.current && status.value === "connected") {
       console.log("🎙️ Starting recording...");
+
+      // Add user typing indicator immediately when they start talking
+      const userTypingMsg: ChatMessage = {
+        type: "typing_indicator",
+        message: {
+          role: "user",
+          content: "You're speaking...",
+        },
+        receivedAt: new Date(),
+        isTyping: true,
+      };
+      setMessages((prev) => [...prev, userTypingMsg]);
+
       audioChunksRef.current = [];
 
       const mediaRecorder = new MediaRecorder(streamRef.current, {
@@ -370,9 +414,21 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
 
       mediaRecorder.onstop = async () => {
         console.log("🎙️ Recording stopped, processing audio...");
+        console.log("🔍 Audio chunks recorded:", audioChunksRef.current.length);
+        console.log(
+          "🔍 Total audio size:",
+          audioChunksRef.current.reduce(
+            (total, chunk) => total + chunk.size,
+            0
+          ),
+          "bytes"
+        );
+
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm",
         });
+
+        console.log("🔍 Audio blob size:", audioBlob.size, "bytes");
 
         // Send to API for transcription
         try {
@@ -408,8 +464,9 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
           }
           console.log("📝 Transcription:", data.text);
           console.log("🤖 AI Response:", data.response);
+          console.log("🔍 Full API response data:", data);
 
-          // Add user message
+          // Replace user typing indicator with actual transcribed text, then add assistant typing indicator
           if (data.text) {
             const userMsg: ChatMessage = {
               type: "user_message",
@@ -419,15 +476,100 @@ export const OpenAIVoiceProvider: React.FC<OpenAIVoiceProviderProps> = ({
               },
               receivedAt: new Date(),
             };
-            setMessages((prev) => [...prev, userMsg]);
+
+            const assistantTypingMsg: ChatMessage = {
+              type: "typing_indicator",
+              message: {
+                role: "assistant",
+                content: "Lexi is thinking...",
+              },
+              receivedAt: new Date(),
+              isTyping: true,
+            };
+
+            // Replace user typing indicator with actual message and add assistant typing indicator
+            setMessages((prev) => {
+              console.log(
+                "🔍 Before adding user message, current messages:",
+                prev
+              );
+
+              // Remove user typing indicator if it exists
+              const lastMessage = prev[prev.length - 1];
+              let newMessages = prev;
+              if (
+                lastMessage &&
+                lastMessage.type === "typing_indicator" &&
+                lastMessage.message.role === "user"
+              ) {
+                newMessages = prev.slice(0, -1);
+              }
+
+              // Add user message and assistant typing indicator
+              const updatedMessages = [
+                ...newMessages,
+                userMsg,
+                assistantTypingMsg,
+              ];
+              console.log(
+                "🔍 After adding user message, new messages:",
+                updatedMessages
+              );
+              console.log("🔍 User message being added:", userMsg);
+
+              return updatedMessages;
+            });
+          } else {
+            // No user transcription, remove user typing indicator
+            setMessages((prev) => {
+              const lastMessage = prev[prev.length - 1];
+              if (
+                lastMessage &&
+                lastMessage.type === "typing_indicator" &&
+                lastMessage.message.role === "user" &&
+                lastMessage.isTyping
+              ) {
+                return prev.slice(0, -1);
+              }
+              return prev;
+            });
           }
 
           // Add assistant response
           if (data.response) {
             sendAssistantMessage(data.response);
+          } else {
+            // Remove assistant typing indicator if no response
+            setMessages((prev) => {
+              const lastMessage = prev[prev.length - 1];
+              if (
+                lastMessage &&
+                lastMessage.type === "typing_indicator" &&
+                lastMessage.message.role === "assistant" &&
+                lastMessage.isTyping
+              ) {
+                return prev.slice(0, -1);
+              }
+              return prev;
+            });
           }
         } catch (error) {
           console.error("❌ Error processing audio:", error);
+
+          // Remove user typing indicator on error (since processing failed)
+          setMessages((prev) => {
+            const lastMessage = prev[prev.length - 1];
+            if (
+              lastMessage &&
+              lastMessage.type === "typing_indicator" &&
+              lastMessage.message.role === "user" &&
+              lastMessage.isTyping
+            ) {
+              return prev.slice(0, -1);
+            }
+            return prev;
+          });
+
           onError?.(error as Error);
         }
       };

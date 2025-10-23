@@ -13,11 +13,13 @@ interface ControlsProps {
 }
 
 export default function Controls({ onEndCall }: ControlsProps) {
-  const { reset, status, isMuted, unmute, mute, micFft } = useVoice();
+  const { reset, disconnect, status, isMuted, unmute, mute, micFft } =
+    useVoice();
 
   const handleEndCall = () => {
-    reset(); // reset mic/messages
-    onEndCall?.(); // tell page to show Hero again
+    // Only disconnect audio, but keep messages for feedback
+    disconnect(); // disconnect mic/audio but keep messages
+    onEndCall?.(); // tell page to show feedback
   };
 
   return (

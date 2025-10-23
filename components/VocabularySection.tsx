@@ -14,6 +14,7 @@ interface VocabularySectionProps {
   feedbackData: {
     vocabulary: string[];
   };
+  language?: string;
   onNavigateToFeedback: () => void;
 }
 

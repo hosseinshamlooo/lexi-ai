@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 
 interface ProgressSectionProps {
   feedbackData: {
@@ -35,7 +35,7 @@ export default function ProgressSection({
             <h3 className="text-lg font-semibold mb-4">
               Vocabulary statistics
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Total words card */}
               <div className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -75,6 +75,30 @@ export default function ProgressSection({
                   </div>
                 </div>
                 <div className="text-3xl font-bold mb-2">38</div>
+              </div>
+
+              {/* Speaking level card */}
+              <div className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium">Speaking level</h4>
+                  <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                </div>
+                <div className="flex items-end justify-between">
+                  <div className="mb-2">
+                    <div className="text-3xl font-bold mb-1 mt-1">B1.1</div>
+                    <div className="text-sm text-[var(--color-muted-foreground)]">
+                      Intermediate
+                    </div>
+                  </div>
+                  <div className="flex items-end gap-1.5">
+                    <div className="w-2.5 h-3 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                    <div className="w-2.5 h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                    <div className="w-2.5 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                    <div className="w-2.5 h-8 bg-pink-500 rounded"></div>
+                    <div className="w-2.5 h-10 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                    <div className="w-2.5 h-12 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -162,11 +186,11 @@ export default function ProgressSection({
                 {/* Legend */}
                 <div className="flex gap-4 mb-4 justify-end">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-pink-600 rounded"></div>
+                    <div className="w-5 h-5 bg-pink-600 rounded-sm"></div>
                     <span className="text-sm">Lexi</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-pink-200 rounded"></div>
+                    <div className="w-5 h-5 bg-pink-200 rounded-sm"></div>
                     <span className="text-sm">You</span>
                   </div>
                 </div>
