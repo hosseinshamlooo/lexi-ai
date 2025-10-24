@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Moon, Sun, FileText, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
+import { ConversationInsights } from "@/utils/insightsStorage";
 
 interface Language {
   code: string;
@@ -39,6 +40,9 @@ interface NavProps {
   conversationHistory?: ConversationHistory[];
   currentConversation?: ConversationHistory;
   onConversationChange?: (conversation: ConversationHistory) => void;
+  insightsHistory?: ConversationInsights[];
+  onViewInsights?: (insights: ConversationInsights) => void;
+  showInsightsInHero?: boolean;
 }
 
 export const Nav = ({
@@ -48,6 +52,9 @@ export const Nav = ({
   conversationHistory = [],
   currentConversation,
   onConversationChange,
+  insightsHistory = [],
+  onViewInsights,
+  showInsightsInHero = false,
 }: NavProps) => {
   const { theme, setTheme } = useTheme();
   const [langOpen, setLangOpen] = useState(false);
@@ -85,6 +92,52 @@ export const Nav = ({
     >
       {/* Left side - Conversation History Dropdown */}
       <div className="flex items-center gap-3 flex-nowrap relative">
+        {/* Show insights history in hero section */}
+        {showInsightsInHero && insightsHistory.length > 0 && (
+          <div className="relative z-50" ref={historyRef}>
+            <Button
+              onClick={() => setHistoryOpen(!historyOpen)}
+              variant="ghost"
+              className="flex items-center gap-2 rounded-full px-4 py-3 text-lg flex-shrink-0 hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-foreground)] transition-colors"
+            >
+              <FileText className="size-5" />
+              <span className="-translate-y-[1px]">Insights</span>
+              <ChevronDown
+                className={`size-5 transition-transform ${
+                  historyOpen ? "rotate-180" : ""
+                }`}
+              />
+            </Button>
+
+            {/* Insights History Dropdown */}
+            {historyOpen && (
+              <div className="absolute left-0 mt-2 min-w-[12rem] bg-[var(--color-popover)] border border-[var(--color-border)] shadow-lg rounded-lg z-50 max-h-80 overflow-y-auto">
+                {insightsHistory.map((insights) => (
+                  <button
+                    key={insights.id}
+                    onClick={() => {
+                      onViewInsights?.(insights);
+                      setHistoryOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full px-4 py-3 rounded-lg text-lg whitespace-nowrap transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-foreground)] text-[var(--color-popover-foreground)]"
+                  >
+                    <FileText className="h-5 w-5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">
+                        {insights.title}
+                      </div>
+                      <div className="text-xs text-[var(--color-muted-foreground)]">
+                        {insights.date}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Show conversation history in feedback section */}
         {showFeedback &&
           conversationHistory.length > 0 &&
           currentConversation && (

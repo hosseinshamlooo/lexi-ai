@@ -19,6 +19,7 @@ import VocabularySection from "./VocabularySection";
 import CloseButton from "./CloseButton";
 import DropdownMenu from "./DropdownMenu";
 import { ChatMessage } from "./OpenAIVoiceProvider";
+import { saveInsights, ConversationInsights } from "@/utils/insightsStorage";
 
 interface ConversationHistory {
   id: string;
@@ -46,6 +47,7 @@ interface FeedbackPageProps {
   isLoading?: boolean;
   userMessages?: ChatMessage[];
   currentConversation?: ConversationHistory;
+  savedInsights?: ConversationInsights;
 }
 
 export default function FeedbackPage({
@@ -55,6 +57,7 @@ export default function FeedbackPage({
   isLoading = false,
   userMessages = [],
   currentConversation,
+  savedInsights,
 }: FeedbackPageProps) {
   const [currentView, setCurrentView] = useState<
     "overview" | "recap" | "progress" | "feedback" | "vocabulary"
@@ -66,14 +69,15 @@ export default function FeedbackPage({
   const [conversationSummary, setConversationSummary] = useState<{
     summary: string;
     recapPoints: string[];
-  } | null>(null);
+  } | null>(savedInsights?.summary || null);
   const [conversationAnalysis, setConversationAnalysis] = useState<{
     summary: string;
+    level: string;
     topics: Array<{
       title: string;
       points: string[];
     }>;
-  } | null>(null);
+  } | null>(savedInsights?.analysis || null);
   const [isAnalyzingSummary, setIsAnalyzingSummary] = useState(false);
   const [isAnalyzingDetailed, setIsAnalyzingDetailed] = useState(false);
 
@@ -97,7 +101,12 @@ export default function FeedbackPage({
   // Generate conversation summary (for OverviewSection)
   useEffect(() => {
     const generateConversationSummary = async () => {
-      if (!userMessages || userMessages.length === 0 || conversationSummary)
+      if (
+        !userMessages ||
+        userMessages.length === 0 ||
+        conversationSummary ||
+        savedInsights
+      )
         return;
 
       setIsAnalyzingSummary(true);
@@ -144,7 +153,12 @@ export default function FeedbackPage({
   // Generate detailed conversation analysis (for RecapSection)
   useEffect(() => {
     const generateConversationAnalysis = async () => {
-      if (!userMessages || userMessages.length === 0 || conversationAnalysis)
+      if (
+        !userMessages ||
+        userMessages.length === 0 ||
+        conversationAnalysis ||
+        savedInsights
+      )
         return;
 
       setIsAnalyzingDetailed(true);
@@ -190,6 +204,10 @@ export default function FeedbackPage({
 
   // Generate dynamic feedback data based on user messages and language
   const feedbackData = useMemo(() => {
+    // Use saved feedback data if available
+    if (savedInsights?.feedbackData) {
+      return savedInsights.feedbackData;
+    }
     // Extract user transcriptions
     const userTranscriptions = userMessages
       .filter((msg) => msg.type === "user_message")
@@ -682,7 +700,38 @@ export default function FeedbackPage({
           ? ["conversation", "discussion"]
           : ["conversation", "discussion"],
     };
-  }, [userMessages, language]);
+  }, [userMessages, language, savedInsights]);
+
+  // Save insights when both summary and analysis are complete
+  useEffect(() => {
+    if (
+      conversationSummary &&
+      conversationAnalysis &&
+      currentConversation &&
+      !savedInsights
+    ) {
+      const insights: ConversationInsights = {
+        id: currentConversation.id,
+        title: currentConversation.title,
+        date: currentConversation.date,
+        situation: currentConversation.situation,
+        language: language,
+        summary: conversationSummary,
+        analysis: conversationAnalysis,
+        userMessages: userMessages,
+        feedbackData: feedbackData,
+      };
+      saveInsights(insights);
+    }
+  }, [
+    conversationSummary,
+    conversationAnalysis,
+    currentConversation,
+    language,
+    userMessages,
+    feedbackData,
+    savedInsights,
+  ]);
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">
@@ -900,6 +949,9 @@ export default function FeedbackPage({
         {currentView === "progress" && (
           <ProgressSection
             feedbackData={feedbackData}
+            userMessages={userMessages}
+            language={language}
+            conversationAnalysis={conversationAnalysis}
             onNavigateToRecap={() => setCurrentView("recap")}
             onNavigateToFeedback={() => setCurrentView("feedback")}
           />

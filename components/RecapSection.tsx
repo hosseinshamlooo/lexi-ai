@@ -10,6 +10,7 @@ interface RecapSectionProps {
   language?: string;
   conversationAnalysis?: {
     summary: string;
+    level: string;
     topics: Array<{
       title: string;
       points: string[];
@@ -61,16 +62,18 @@ export default function RecapSection({
                       <span className="bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-sm w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 font-bold">
                         {index + 1}
                       </span>
-                      <h4 className="font-semibold text-lg">{topic.title}</h4>
+                      <h4 className="font-semibold text-lg">
+                        {topic.title.replace(/\*\*/g, "")}
+                      </h4>
                     </div>
-                    <ul className="ml-9 space-y-2">
+                    <ul className="ml-9 space-y-3">
                       {topic.points.map((point, pointIndex) => (
-                        <li key={pointIndex} className="flex items-start gap-2">
-                          <span className="text-[var(--color-muted-foreground)] mt-1.5 flex-shrink-0">
+                        <li key={pointIndex} className="flex items-start gap-3">
+                          <span className="text-[var(--color-muted-foreground)] mt-2 flex-shrink-0 text-lg">
                             •
                           </span>
-                          <span className="text-[var(--color-muted-foreground)] text-sm mt-0.5">
-                            {point}
+                          <span className="text-[var(--color-muted-foreground)] text-base leading-relaxed">
+                            {point.replace(/^-\s*/, "")}
                           </span>
                         </li>
                       ))}

@@ -10,6 +10,10 @@ import { Nav } from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Controls from "@/components/Controls";
 import FeedbackPage from "@/components/FeedbackPage";
+import {
+  getInsightsHistory,
+  ConversationInsights,
+} from "@/utils/insightsStorage";
 import translationsJSON from "@/translations.json";
 import { toast } from "sonner";
 
@@ -33,6 +37,11 @@ function ClientPageContent({
     prompt: string;
     image?: string;
   }>(null);
+  const [savedInsights, setSavedInsights] = useState<ConversationInsights[]>(
+    []
+  );
+  const [viewingInsights, setViewingInsights] =
+    useState<ConversationInsights | null>(null);
 
   const voice = process.env.NEXT_PUBLIC_OPENAI_VOICE || "onyx";
 
@@ -51,6 +60,20 @@ function ClientPageContent({
   >;
 
   const currentTranslation = typedTranslations[selectedLanguage];
+
+  // Load saved insights on mount
+  useEffect(() => {
+    const insights = getInsightsHistory();
+    setSavedInsights(insights);
+  }, []);
+
+  // Refresh insights when returning from feedback page
+  useEffect(() => {
+    if (!showFeedback && !callStarted) {
+      const insights = getInsightsHistory();
+      setSavedInsights(insights);
+    }
+  }, [showFeedback, callStarted]);
 
   // Generate conversation history for nav dropdown
   const conversationHistory = useMemo(() => {
@@ -156,24 +179,42 @@ function ClientPageContent({
         conversationHistory={conversationHistory}
         currentConversation={currentConversation}
         onConversationChange={setCurrentConversation}
+        insightsHistory={savedInsights}
+        onViewInsights={(insights) => {
+          setViewingInsights(insights);
+        }}
+        showInsightsInHero={
+          !callStarted && !showFeedback && savedInsights.length > 0
+        }
       />
 
-      {/* Show feedback page if call ended */}
-      {showFeedback && activeSituation ? (
+      {/* Show feedback page if call ended or viewing insights */}
+      {(showFeedback && activeSituation) || viewingInsights ? (
         <FeedbackPage
           onBack={() => {
             setShowFeedback(false);
             setActiveSituation(null);
             setIsLoadingFeedback(false);
+            setViewingInsights(null);
             // scroll back to Hero smoothly
             const hero = document.getElementById("hero");
             hero?.scrollIntoView({ behavior: "smooth" });
           }}
-          language={selectedLanguage}
-          situation={activeSituation}
+          language={viewingInsights?.language || selectedLanguage}
+          situation={viewingInsights?.situation || activeSituation!}
           isLoading={isLoadingFeedback}
-          userMessages={messages}
-          currentConversation={currentConversation}
+          userMessages={viewingInsights?.userMessages || messages}
+          currentConversation={
+            viewingInsights
+              ? {
+                  id: viewingInsights.id,
+                  title: viewingInsights.title,
+                  date: viewingInsights.date,
+                  situation: viewingInsights.situation,
+                }
+              : currentConversation
+          }
+          savedInsights={viewingInsights}
         />
       ) : (
         <div className="flex flex-col w-full">

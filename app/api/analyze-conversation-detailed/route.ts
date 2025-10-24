@@ -26,9 +26,11 @@ export async function POST(req: NextRequest) {
         ? `Vous êtes un assistant utile qui analyse les conversations et fournit des résumés détaillés. Analysez la conversation et fournissez:
 1. Un résumé d'une phrase de la conversation
 2. 3-5 sujets principaux discutés, chacun avec 2-3 points détaillés
+3. Le niveau de langue de l'utilisateur (A0, A1.1, A1.2, A1.3, B1.1, B1.2, B1.3, B2.1, B2.2, B2.3, C1)
 
 Format de réponse:
 Summary: [résumé d'une phrase]
+Level: [niveau de langue]
 Topics:
 1. [Titre du sujet]
    - [Point 1]
@@ -44,9 +46,11 @@ etc.`
         : `You are a helpful assistant that analyzes conversations and provides detailed summaries. Analyze the conversation and provide:
 1. A one-sentence summary of the conversation
 2. 3-5 main topics discussed, each with 2-3 detailed points
+3. The user's language proficiency level (A0, A1.1, A1.2, A1.3, B1.1, B1.2, B1.3, B2.1, B2.2, B2.3, C1)
 
 Response format:
 Summary: [one-sentence summary]
+Level: [language level]
 Topics:
 1. [Topic title]
    - [Point 1]
@@ -73,11 +77,13 @@ etc.`;
 
     const content = chatResponse.choices[0].message?.content || "";
 
-    // Parse the content to extract summary and topics
+    // Parse the content to extract summary, level, and topics
     const summaryMatch = content.match(/Summary:\s*(.*?)(\n|$)/i);
+    const levelMatch = content.match(/Level:\s*(.*?)(\n|$)/i);
     const topicsMatch = content.match(/Topics:\s*([\s\S]*)/i);
 
     const summary = summaryMatch ? summaryMatch[1].trim() : "";
+    const level = levelMatch ? levelMatch[1].trim() : "A0";
 
     let topics: Array<{ title: string; points: string[] }> = [];
     if (topicsMatch) {
@@ -96,7 +102,7 @@ etc.`;
       });
     }
 
-    return NextResponse.json({ summary, topics });
+    return NextResponse.json({ summary, level, topics });
   } catch (error: any) {
     console.error("API route error:", error);
     return NextResponse.json(
